@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Compare Instrument Waveforms</title>
+
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        font-family: Arial, Helvetica, sans-serif;
+
+        color: #222222;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+
+    /* ========================================================
+       MAIN LAYOUT
+       ======================================================== */
+
+    .demo {
+
+        width: 100%;
+        height: 100vh;
+
+        padding: 16px 26px;
+
+        display: flex;
+        flex-direction: column;
+
+        background: white;
+    }
+
+
+    /* ========================================================
+       HEADER
+       ======================================================== */
+
+    .header {
+
+        display: flex;
+
+        align-items: center;
+
+        margin-bottom: 8px;
+    }
+
+
+    h1 {
+
+        margin: 0;
+
+        color: #0D47A1;
+
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+
+    .spacer {
+        flex: 1;
+    }
+
+
+    #status {
+
+        font-size: 14px;
+
+        font-weight: bold;
+
+        color: #777777;
+    }
+
+
+    #status.live {
+        color: #16813D;
+    }
+
+
+    /* ========================================================
+       GRAPH
+       ======================================================== */
+
+    .graph-container {
+
+        flex: 1;
+
+        min-height: 260px;
+
+        position: relative;
+    }
+
+
+    #waveCanvas {
+
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        background: white;
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 8px;
+    }
+
+
+    /* ========================================================
+       MAIN CONTROL BAR
+       ======================================================== */
+
+    .main-controls {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        margin-top: 10px;
+    }
+
+
+    button {
+
+        border: 1px solid #B7C7D6;
+
+        border-radius: 6px;
+
+        padding: 8px 14px;
+
+        background: #F5F8FB;
+
+        color: #222222;
+
+        font-size: 14px;
+
+        cursor: pointer;
+    }
+
+
+    button:hover {
+
+        background: #E3F2FD;
+
+        border-color: #1565C0;
+    }
+
+
+    button:disabled {
+
+        background: #EEEEEE;
+
+        color: #999999;
+
+        border-color: #DDDDDD;
+
+        cursor: default;
+    }
+
+
+    #microphoneButton {
+
+        background: #1565C0;
+
+        color: white;
+
+        border: none;
+
+        font-weight: 600;
+    }
+
+
+    #microphoneButton.running {
+
+        background: #C62828;
+    }
+
+
+    #captureButton {
+
+        background: #2E7D32;
+
+        color: white;
+
+        border: none;
+
+        font-weight: 600;
+    }
+
+
+    #instrumentName {
+
+        width: 180px;
+
+        padding: 8px 10px;
+
+        border: 1px solid #B7C7D6;
+
+        border-radius: 6px;
+
+        font-size: 14px;
+    }
+
+
+    /* ========================================================
+       SETTINGS
+       ======================================================== */
+
+    .settings {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr 1fr;
+
+        gap: 12px;
+
+        margin-top: 10px;
+    }
+
+
+    .settings-box {
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 8px;
+
+        padding: 10px 14px;
+    }
+
+
+    .settings-box h2 {
+
+        margin: 0 0 7px 0;
+
+        color: #0D47A1;
+
+        font-size: 16px;
+    }
+
+
+    .slider-row {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+
+    input[type="range"] {
+        flex: 1;
+    }
+
+
+    .value {
+
+        min-width: 70px;
+
+        text-align: right;
+
+        color: #1565C0;
+
+        font-weight: bold;
+
+        font-size: 13px;
+    }
+
+
+    /* ========================================================
+       QUICK VIEW
+       ======================================================== */
+
+    .quick-view {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        margin-top: 9px;
+
+        font-size: 13px;
+    }
+
+
+    .quick-view button {
+
+        padding: 5px 10px;
+
+        font-size: 12px;
+    }
+
+
+    /* ========================================================
+       OPTIONS
+       ======================================================== */
+
+    .options {
+
+        display: flex;
+
+        gap: 25px;
+
+        margin-top: 8px;
+
+        font-size: 13px;
+    }
+
+
+    /* ========================================================
+       RECORDING LIST
+       ======================================================== */
+
+    .recordings {
+
+        margin-top: 8px;
+
+        border-top: 1px solid #D5DDE5;
+
+        padding-top: 7px;
+    }
+
+
+    .recordings-title {
+
+        font-weight: bold;
+
+        color: #0D47A1;
+
+        margin-right: 15px;
+    }
+
+
+    #recordingList {
+
+        display: inline-flex;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+
+
+    .recording-item {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 6px;
+
+        padding: 5px 8px;
+
+        background: white;
+
+        font-size: 13px;
+    }
+
+
+    .colour-box {
+
+        width: 12px;
+        height: 12px;
+
+        border-radius: 2px;
+    }
+
+
+    .delete-button {
+
+        border: none;
+
+        background: none;
+
+        padding: 0 3px;
+
+        color: #777777;
+
+        font-size: 15px;
+    }
+
+
+    .delete-button:hover {
+
+        background: none;
+
+        color: #C62828;
+
+        border: none;
+    }
+
+
+    /* ========================================================
+       MESSAGE
+       ======================================================== */
+
+    #message {
+
+        margin-top: 7px;
+
+        font-size: 12px;
+
+        color: #666666;
+    }
+
+
+    @media (max-width: 900px) {
+
+        body {
+            overflow: auto;
+        }
+
+        .demo {
+
+            height: auto;
+
+            min-height: 100vh;
+        }
+
+        .graph-container {
+
+            height: 350px;
+
+            flex: none;
+        }
+
+        .settings {
+
+            grid-template-columns: 1fr;
+        }
+
+        .main-controls {
+
+            flex-wrap: wrap;
+        }
+
+    }
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="demo">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="header">
+
+        <h1>
+            Compare Instrument Waveforms
+        </h1>
+
+        <div class="spacer"></div>
+
+        <div id="status">
+            ● MICROPHONE OFF
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GRAPH
+         ===================================================== -->
+
+    <div class="graph-container">
+
+        <canvas id="waveCanvas"></canvas>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN CONTROLS
+         ===================================================== -->
+
+    <div class="main-controls">
+
+
+        <button
+            id="microphoneButton"
+            type="button"
+        >
+            ▶ Start microphone
+        </button>
+
+
+        <input
+            id="instrumentName"
+            type="text"
+            placeholder="Instrument name"
+        >
+
+
+        <button
+            id="captureButton"
+            type="button"
+            disabled
+        >
+            Freeze instrument
+        </button>
+
+
+        <button
+            id="clearButton"
+            type="button"
+        >
+            Clear all
+        </button>
+
+
+        <div class="spacer"></div>
+
+
+        <span id="sampleRateDisplay">
+            Sample rate: —
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         QUICK VIEW
+         ===================================================== -->
+
+    <div class="quick-view">
+
+        <strong>
+            Quick view:
+        </strong>
+
+        <button
+            class="quickView"
+            data-time="2"
+        >
+            2 s
+        </button>
+
+        <button
+            class="quickView"
+            data-time="0.1"
+        >
+            100 ms
+        </button>
+
+        <button
+            class="quickView"
+            data-time="0.02"
+        >
+            20 ms
+        </button>
+
+        <button
+            class="quickView"
+            data-time="0.01"
+        >
+            10 ms
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         SETTINGS
+         ===================================================== -->
+
+    <div class="settings">
+
+
+        <!-- TIME WINDOW -->
+
+        <div class="settings-box">
+
+            <h2>
+                Time Window
+            </h2>
+
+            <div class="slider-row">
+
+                <input
+                    id="timeSlider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="23"
+                >
+
+                <span
+                    id="timeValue"
+                    class="value"
+                >
+                    20 ms
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- POSITION -->
+
+        <div class="settings-box">
+
+            <h2>
+                Position in Recording
+            </h2>
+
+            <div class="slider-row">
+
+                <input
+                    id="positionSlider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="100"
+                >
+
+                <span
+                    id="positionValue"
+                    class="value"
+                >
+                    End
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- AMPLITUDE -->
+
+        <div class="settings-box">
+
+            <h2>
+                Amplitude Scale
+            </h2>
+
+            <div class="slider-row">
+
+                <input
+                    id="amplitudeSlider"
+                    type="range"
+                    min="2"
+                    max="100"
+                    value="20"
+                >
+
+                <span
+                    id="amplitudeValue"
+                    class="value"
+                >
+                    ±0.20
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         OPTIONS
+         ===================================================== -->
+
+    <div class="options">
+
+        <label>
+
+            <input
+                id="showLive"
+                type="checkbox"
+                checked
+            >
+
+            Show live microphone signal
+
+        </label>
+
+
+        <label>
+
+            <input
+                id="normalise"
+                type="checkbox"
+            >
+
+            Normalise waveforms for shape comparison
+
+        </label>
+
+    </div>
+
+
+    <!-- =====================================================
+         SAVED RECORDINGS
+         ===================================================== -->
+
+    <div class="recordings">
+
+        <span class="recordings-title">
+            Frozen instruments:
+        </span>
+
+        <span id="recordingList">
+
+            None yet
+
+        </span>
+
+    </div>
+
+
+    <div id="message">
+
+        Start the microphone, play one instrument, type its name
+        and press <strong>Freeze instrument</strong>. Then repeat
+        for the next instrument.
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+(function () {
+
+
+    // ========================================================
+    // CONSTANTS
+    // ========================================================
+
+    const BUFFER_SECONDS =
+        2;
+
+
+    const MIN_TIME_WINDOW =
+        0.005;
+
+
+    const TRACE_COLOURS = [
+
+        "#1565C0",
+        "#C62828",
+        "#2E7D32",
+        "#6A1B9A",
+        "#EF6C00",
+        "#00838F"
+
+    ];
+
+
+    // ========================================================
+    // ELEMENTS
+    // ========================================================
+
+    const canvas =
+        document.getElementById(
+            "waveCanvas"
+        );
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    const microphoneButton =
+        document.getElementById(
+            "microphoneButton"
+        );
+
+
+    const captureButton =
+        document.getElementById(
+            "captureButton"
+        );
+
+
+    const clearButton =
+        document.getElementById(
+            "clearButton"
+        );
+
+
+    const instrumentName =
+        document.getElementById(
+            "instrumentName"
+        );
+
+
+    const statusDisplay =
+        document.getElementById(
+            "status"
+        );
+
+
+    const sampleRateDisplay =
+        document.getElementById(
+            "sampleRateDisplay"
+        );
+
+
+    const messageDisplay =
+        document.getElementById(
+            "message"
+        );
+
+
+    const recordingList =
+        document.getElementById(
+            "recordingList"
+        );
+
+
+    const timeSlider =
+        document.getElementById(
+            "timeSlider"
+        );
+
+
+    const timeValue =
+        document.getElementById(
+            "timeValue"
+        );
+
+
+    const positionSlider =
+        document.getElementById(
+            "positionSlider"
+        );
+
+
+    const positionValue =
+        document.getElementById(
+            "positionValue"
+        );
+
+
+    const amplitudeSlider =
+        document.getElementById(
+            "amplitudeSlider"
+        );
+
+
+    const amplitudeValue =
+        document.getElementById(
+            "amplitudeValue"
+        );
+
+
+    const showLive =
+        document.getElementById(
+            "showLive"
+        );
+
+
+    const normalise =
+        document.getElementById(
+            "normalise"
+        );
+
+
+    // ========================================================
+    // AUDIO
+    // ========================================================
+
+    let audioContext =
+        null;
+
+
+    let mediaStream =
+        null;
+
+
+    let sourceNode =
+        null;
+
+
+    let processorNode =
+        null;
+
+
+    let muteNode =
+        null;
+
+
+    let sampleRate =
+        48000;
+
+
+    let ringBuffer =
+        null;
+
+
+    let writePosition =
+        0;
+
+
+    let microphoneRunning =
+        false;
+
+
+    // ========================================================
+    // SAVED INSTRUMENTS
+    // ========================================================
+
+    let recordings =
+        [];
+
+
+    let nextID =
+        1;
+
+
+    // ========================================================
+    // DISPLAY SETTINGS
+    // ========================================================
+
+    let visibleTime =
+        0.020;
+
+
+    let amplitudeRange =
+        0.20;
+
+
+    let recordingPosition =
+        1.0;
+
+
+    // ========================================================
+    // CANVAS
+    // ========================================================
+
+    function resizeCanvas() {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        if (
+            rect.width <= 0
+            ||
+            rect.height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        const dpr =
+            window.devicePixelRatio || 1;
+
+
+        canvas.width =
+            Math.round(
+                rect.width * dpr
+            );
+
+
+        canvas.height =
+            Math.round(
+                rect.height * dpr
+            );
+
+
+        ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+
+        draw();
+
+    }
+
+
+    // ========================================================
+    // RING BUFFER
+    // ========================================================
+
+    function createRingBuffer() {
+
+
+        ringBuffer =
+            new Float32Array(
+
+                Math.round(
+                    sampleRate
+                    * BUFFER_SECONDS
+                )
+
+            );
+
+
+        writePosition =
+            0;
+
+    }
+
+
+    function writeToRingBuffer(
+        samples
+    ) {
+
+
+        if (!ringBuffer) {
+            return;
+        }
+
+
+        for (
+            let i = 0;
+            i < samples.length;
+            i++
+        ) {
+
+
+            ringBuffer[
+                writePosition
+            ] = samples[i];
+
+
+            writePosition =
+                (
+                    writePosition + 1
+                )
+                % ringBuffer.length;
+
+        }
+
+    }
+
+
+    function getCurrentBuffer() {
+
+
+        if (!ringBuffer) {
+            return null;
+        }
+
+
+        const output =
+            new Float32Array(
+                ringBuffer.length
+            );
+
+
+        const remaining =
+            ringBuffer.length
+            - writePosition;
+
+
+        output.set(
+
+            ringBuffer.subarray(
+                writePosition
+            ),
+
+            0
+
+        );
+
+
+        output.set(
+
+            ringBuffer.subarray(
+                0,
+                writePosition
+            ),
+
+            remaining
+
+        );
+
+
+        return output;
+
+    }
+
+
+    // ========================================================
+    // MICROPHONE
+    // ========================================================
+
+    async function startMicrophone() {
+
+
+        if (
+            !navigator.mediaDevices
+            ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+
+            messageDisplay.innerHTML =
+
+                "<strong>Microphone access is unavailable.</strong> "
+                + "Open the presentation through localhost.";
+
+
+            return;
+
+        }
+
+
+        try {
+
+
+            mediaStream =
+                await navigator.mediaDevices
+                    .getUserMedia({
+
+                        audio: {
+
+                            channelCount: 1,
+
+                            echoCancellation: false,
+
+                            noiseSuppression: false,
+
+                            autoGainControl: false
+
+                        },
+
+                        video: false
+
+                    });
+
+
+            audioContext =
+                new (
+                    window.AudioContext
+                    ||
+                    window.webkitAudioContext
+                )();
+
+
+            if (
+                audioContext.state
+                === "suspended"
+            ) {
+
+
+                await audioContext.resume();
+
+            }
+
+
+            sampleRate =
+                audioContext.sampleRate;
+
+
+            createRingBuffer();
+
+
+            sourceNode =
+                audioContext
+                    .createMediaStreamSource(
+                        mediaStream
+                    );
+
+
+            processorNode =
+                audioContext
+                    .createScriptProcessor(
+                        2048,
+                        1,
+                        1
+                    );
+
+
+            processorNode.onaudioprocess =
+                function (event) {
+
+
+                    const samples =
+                        event
+                            .inputBuffer
+                            .getChannelData(0);
+
+
+                    writeToRingBuffer(
+                        samples
+                    );
+
+                };
+
+
+            /*
+                Keep processor running, but do not
+                send microphone audio to speakers.
+            */
+
+            muteNode =
+                audioContext
+                    .createGain();
+
+
+            muteNode.gain.value =
+                0;
+
+
+            sourceNode.connect(
+                processorNode
+            );
+
+
+            processorNode.connect(
+                muteNode
+            );
+
+
+            muteNode.connect(
+                audioContext.destination
+            );
+
+
+            microphoneRunning =
+                true;
+
+
+            microphoneButton.textContent =
+                "■ Stop microphone";
+
+
+            microphoneButton.classList.add(
+                "running"
+            );
+
+
+            captureButton.disabled =
+                false;
+
+
+            statusDisplay.textContent =
+                "● LIVE";
+
+
+            statusDisplay.className =
+                "live";
+
+
+            sampleRateDisplay.textContent =
+
+                "Sample rate: "
+                + sampleRate
+                + " Hz";
+
+
+            messageDisplay.innerHTML =
+
+                "Play an instrument, type its name, then press "
+                + "<strong>Freeze instrument</strong>.";
+
+        }
+
+
+        catch (error) {
+
+
+            console.error(
+                error
+            );
+
+
+            messageDisplay.innerHTML =
+
+                "<strong>Microphone could not be accessed.</strong> "
+                + "Check the browser's microphone permission.";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // STOP MICROPHONE
+    // ========================================================
+
+    async function stopMicrophone() {
+
+
+        microphoneRunning =
+            false;
+
+
+        captureButton.disabled =
+            true;
+
+
+        if (processorNode) {
+
+
+            processorNode.disconnect();
+
+            processorNode.onaudioprocess =
+                null;
+
+            processorNode =
+                null;
+
+        }
+
+
+        if (sourceNode) {
+
+
+            sourceNode.disconnect();
+
+            sourceNode =
+                null;
+
+        }
+
+
+        if (muteNode) {
+
+
+            muteNode.disconnect();
+
+            muteNode =
+                null;
+
+        }
+
+
+        if (mediaStream) {
+
+
+            mediaStream
+                .getTracks()
+                .forEach(
+                    track => track.stop()
+                );
+
+
+            mediaStream =
+                null;
+
+        }
+
+
+        if (audioContext) {
+
+
+            await audioContext.close();
+
+            audioContext =
+                null;
+
+        }
+
+
+        microphoneButton.textContent =
+            "▶ Start microphone";
+
+
+        microphoneButton.classList.remove(
+            "running"
+        );
+
+
+        statusDisplay.textContent =
+            "● MICROPHONE OFF";
+
+
+        statusDisplay.className =
+            "";
+
+    }
+
+
+    // ========================================================
+    // CAPTURE INSTRUMENT
+    // ========================================================
+
+    function captureInstrument() {
+
+
+        if (
+            !microphoneRunning
+            ||
+            !ringBuffer
+        ) {
+
+            return;
+
+        }
+
+
+        let name =
+            instrumentName
+                .value
+                .trim();
+
+
+        if (!name) {
+
+
+            name =
+                "Instrument "
+                + nextID;
+
+        }
+
+
+        const recording = {
+
+            id:
+                nextID,
+
+            name:
+                name,
+
+            data:
+                getCurrentBuffer(),
+
+            sampleRate:
+                sampleRate,
+
+            colour:
+                TRACE_COLOURS[
+                    recordings.length
+                    % TRACE_COLOURS.length
+                ],
+
+            visible:
+                true
+
+        };
+
+
+        recordings.push(
+            recording
+        );
+
+
+        nextID++;
+
+
+        instrumentName.value =
+            "";
+
+
+        updateRecordingList();
+
+
+        draw();
+
+
+        messageDisplay.innerHTML =
+
+            "<strong>"
+            + name
+            + "</strong> frozen. "
+            + "You can now play the next instrument.";
+
+    }
+
+
+    // ========================================================
+    // RECORDING LIST
+    // ========================================================
+
+    function updateRecordingList() {
+
+
+        recordingList.innerHTML =
+            "";
+
+
+        if (
+            recordings.length === 0
+        ) {
+
+
+            recordingList.textContent =
+                "None yet";
+
+
+            return;
+
+        }
+
+
+        recordings.forEach(
+            function (recording) {
+
+
+                const item =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                item.className =
+                    "recording-item";
+
+
+                // --------------------------------------------
+                // Colour
+                // --------------------------------------------
+
+                const colour =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                colour.className =
+                    "colour-box";
+
+
+                colour.style.backgroundColor =
+                    recording.colour;
+
+
+                item.appendChild(
+                    colour
+                );
+
+
+                // --------------------------------------------
+                // Visibility
+                // --------------------------------------------
+
+                const checkbox =
+                    document.createElement(
+                        "input"
+                    );
+
+
+                checkbox.type =
+                    "checkbox";
+
+
+                checkbox.checked =
+                    recording.visible;
+
+
+                checkbox.addEventListener(
+                    "change",
+                    function () {
+
+
+                        recording.visible =
+                            checkbox.checked;
+
+
+                        draw();
+
+                    }
+                );
+
+
+                item.appendChild(
+                    checkbox
+                );
+
+
+                // --------------------------------------------
+                // Name
+                // --------------------------------------------
+
+                const label =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                label.textContent =
+                    recording.name;
+
+
+                item.appendChild(
+                    label
+                );
+
+
+                // --------------------------------------------
+                // Delete
+                // --------------------------------------------
+
+                const deleteButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                deleteButton.className =
+                    "delete-button";
+
+
+                deleteButton.textContent =
+                    "×";
+
+
+                deleteButton.title =
+                    "Delete";
+
+
+                deleteButton.addEventListener(
+                    "click",
+                    function () {
+
+
+                        recordings =
+                            recordings.filter(
+
+                                item =>
+                                    item.id
+                                    !== recording.id
+
+                            );
+
+
+                        updateRecordingList();
+
+
+                        draw();
+
+                    }
+                );
+
+
+                item.appendChild(
+                    deleteButton
+                );
+
+
+                recordingList.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // SELECT VISIBLE PORTION OF RECORDING
+    // ========================================================
+
+    function getRecordingSegment(
+        recording
+    ) {
+
+
+        const totalSamples =
+            recording.data.length;
+
+
+        const visibleSamples =
+            Math.min(
+
+                totalSamples,
+
+                Math.round(
+
+                    visibleTime
+                    * recording.sampleRate
+
+                )
+
+            );
+
+
+        const available =
+            totalSamples
+            - visibleSamples;
+
+
+        const start =
+            Math.round(
+
+                available
+                * recordingPosition
+
+            );
+
+
+        const end =
+            Math.min(
+
+                totalSamples,
+
+                start + visibleSamples
+
+            );
+
+
+        return recording.data.subarray(
+            start,
+            end
+        );
+
+    }
+
+
+    // ========================================================
+    // LIVE SEGMENT
+    // ========================================================
+
+    function getLiveSegment() {
+
+
+        const data =
+            getCurrentBuffer();
+
+
+        if (!data) {
+            return null;
+        }
+
+
+        const count =
+            Math.min(
+
+                data.length,
+
+                Math.round(
+                    visibleTime
+                    * sampleRate
+                )
+
+            );
+
+
+        return data.subarray(
+
+            data.length - count
+
+        );
+
+    }
+
+
+    // ========================================================
+    // PEAK VALUE
+    // ========================================================
+
+    function getPeak(
+        data
+    ) {
+
+
+        let peak =
+            0;
+
+
+        for (
+            let i = 0;
+            i < data.length;
+            i++
+        ) {
+
+
+            const value =
+                Math.abs(
+                    data[i]
+                );
+
+
+            if (
+                value > peak
+            ) {
+
+
+                peak =
+                    value;
+
+            }
+
+        }
+
+
+        return Math.max(
+            peak,
+            0.001
+        );
+
+    }
+
+
+    // ========================================================
+    // DRAW ONE SIGNAL
+    // ========================================================
+
+    function drawSignal(
+        data,
+        colour,
+        width,
+        height,
+        geometry
+    ) {
+
+
+        if (
+            !data
+            ||
+            data.length < 2
+        ) {
+
+            return;
+
+        }
+
+
+        const left =
+            geometry.left;
+
+
+        const top =
+            geometry.top;
+
+
+        const graphWidth =
+            geometry.graphWidth;
+
+
+        const graphHeight =
+            geometry.graphHeight;
+
+
+        const centreY =
+            geometry.centreY;
+
+
+        let scale =
+            amplitudeRange;
+
+
+        if (
+            normalise.checked
+        ) {
+
+
+            scale =
+                getPeak(
+                    data
+                )
+                * 1.1;
+
+        }
+
+
+        ctx.strokeStyle =
+            colour;
+
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.beginPath();
+
+
+        /*
+            Short windows:
+            draw actual samples.
+        */
+
+        if (
+            data.length
+            <= graphWidth * 2
+        ) {
+
+
+            for (
+                let i = 0;
+                i < data.length;
+                i++
+            ) {
+
+
+                const x =
+
+                    left
+
+                    + graphWidth
+                    * i
+
+                    / (
+                        data.length - 1
+                    );
+
+
+                const y =
+
+                    centreY
+
+                    - (
+                        data[i]
+                        / scale
+                    )
+
+                    * graphHeight
+                    / 2;
+
+
+                if (
+                    i === 0
+                ) {
+
+
+                    ctx.moveTo(
+                        x,
+                        y
+                    );
+
+
+                } else {
+
+
+                    ctx.lineTo(
+                        x,
+                        y
+                    );
+
+                }
+
+            }
+
+
+            ctx.stroke();
+
+        }
+
+
+        /*
+            Longer windows:
+            use min/max envelope so details
+            are not lost.
+        */
+
+        else {
+
+
+            const pixels =
+                Math.floor(
+                    graphWidth
+                );
+
+
+            for (
+                let px = 0;
+                px < pixels;
+                px++
+            ) {
+
+
+                const start =
+                    Math.floor(
+
+                        data.length
+                        * px
+                        / pixels
+
+                    );
+
+
+                const end =
+                    Math.max(
+
+                        start + 1,
+
+                        Math.floor(
+
+                            data.length
+                            * (px + 1)
+                            / pixels
+
+                        )
+
+                    );
+
+
+                let minimum =
+                    1;
+
+
+                let maximum =
+                    -1;
+
+
+                for (
+                    let i = start;
+                    i < end;
+                    i++
+                ) {
+
+
+                    const value =
+                        data[i];
+
+
+                    minimum =
+                        Math.min(
+                            minimum,
+                            value
+                        );
+
+
+                    maximum =
+                        Math.max(
+                            maximum,
+                            value
+                        );
+
+                }
+
+
+                const x =
+                    left + px;
+
+
+                const y1 =
+
+                    centreY
+
+                    - (
+                        maximum
+                        / scale
+                    )
+
+                    * graphHeight
+                    / 2;
+
+
+                const y2 =
+
+                    centreY
+
+                    - (
+                        minimum
+                        / scale
+                    )
+
+                    * graphHeight
+                    / 2;
+
+
+                ctx.moveTo(
+                    x,
+                    y1
+                );
+
+
+                ctx.lineTo(
+                    x,
+                    y2
+                );
+
+            }
+
+
+            ctx.stroke();
+
+        }
+
+    }
+
+
+    // ========================================================
+    // DRAW COMPLETE GRAPH
+    // ========================================================
+
+    function draw() {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        ctx.clearRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        ctx.fillStyle =
+            "#FFFFFF";
+
+
+        ctx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        const left =
+            65;
+
+
+        const right =
+            20;
+
+
+        const top =
+            20;
+
+
+        const bottom =
+            45;
+
+
+        const graphWidth =
+
+            width
+            - left
+            - right;
+
+
+        const graphHeight =
+
+            height
+            - top
+            - bottom;
+
+
+        const centreY =
+
+            top
+            + graphHeight / 2;
+
+
+        const geometry = {
+
+            left,
+            top,
+            graphWidth,
+            graphHeight,
+            centreY
+
+        };
+
+
+        // ====================================================
+        // GRID
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#E4E8EC";
+
+
+        ctx.lineWidth =
+            1;
+
+
+        for (
+            let i = 0;
+            i <= 10;
+            i++
+        ) {
+
+
+            const x =
+
+                left
+                + graphWidth
+                * i
+                / 10;
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                x,
+                top
+            );
+
+
+            ctx.lineTo(
+                x,
+                top + graphHeight
+            );
+
+
+            ctx.stroke();
+
+        }
+
+
+        for (
+            let i = 0;
+            i <= 8;
+            i++
+        ) {
+
+
+            const y =
+
+                top
+                + graphHeight
+                * i
+                / 8;
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                left,
+                y
+            );
+
+
+            ctx.lineTo(
+                left + graphWidth,
+                y
+            );
+
+
+            ctx.stroke();
+
+        }
+
+
+        // ====================================================
+        // AXES
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#777777";
+
+
+        ctx.lineWidth =
+            1.5;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            centreY
+        );
+
+
+        ctx.lineTo(
+            left + graphWidth,
+            centreY
+        );
+
+
+        ctx.stroke();
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            top
+        );
+
+
+        ctx.lineTo(
+            left,
+            top + graphHeight
+        );
+
+
+        ctx.stroke();
+
+
+        // ====================================================
+        // LIVE SIGNAL
+        // ====================================================
+
+        if (
+            microphoneRunning
+            &&
+            showLive.checked
+        ) {
+
+
+            drawSignal(
+
+                getLiveSegment(),
+
+                "#777777",
+
+                width,
+                height,
+                geometry
+
+            );
+
+        }
+
+
+        // ====================================================
+        // STORED SIGNALS
+        // ====================================================
+
+        recordings.forEach(
+            function (recording) {
+
+
+                if (
+                    !recording.visible
+                ) {
+
+                    return;
+
+                }
+
+
+                drawSignal(
+
+                    getRecordingSegment(
+                        recording
+                    ),
+
+                    recording.colour,
+
+                    width,
+                    height,
+
+                    geometry
+
+                );
+
+            }
+        );
+
+
+        // ====================================================
+        // AXIS LABELS
+        // ====================================================
+
+        ctx.fillStyle =
+            "#444444";
+
+
+        ctx.font =
+            "14px Arial";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        const unit =
+            visibleTime < 1
+            ? "ms"
+            : "s";
+
+
+        ctx.fillText(
+
+            "Time (" + unit + ")",
+
+            left
+            + graphWidth / 2,
+
+            height - 7
+
+        );
+
+
+        ctx.save();
+
+
+        ctx.translate(
+            17,
+            centreY
+        );
+
+
+        ctx.rotate(
+            -Math.PI / 2
+        );
+
+
+        ctx.fillText(
+            "Amplitude",
+            0,
+            0
+        );
+
+
+        ctx.restore();
+
+
+        // ====================================================
+        // TIME TICKS
+        // ====================================================
+
+        ctx.font =
+            "12px Arial";
+
+
+        ctx.fillStyle =
+            "#666666";
+
+
+        for (
+            let i = 0;
+            i <= 4;
+            i++
+        ) {
+
+
+            const fraction =
+                i / 4;
+
+
+            const time =
+                visibleTime
+                * fraction;
+
+
+            const x =
+
+                left
+                + graphWidth
+                * fraction;
+
+
+            let label;
+
+
+            if (
+                visibleTime < 1
+            ) {
+
+
+                label =
+
+                    (
+                        time * 1000
+                    ).toFixed(0);
+
+
+            } else {
+
+
+                label =
+                    time.toFixed(2);
+
+            }
+
+
+            ctx.fillText(
+
+                label,
+
+                x,
+
+                top
+                + graphHeight
+                + 20
+
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // TIME CONTROL
+    // ========================================================
+
+    function sliderToTime(
+        value
+    ) {
+
+
+        const fraction =
+            value / 100;
+
+
+        return (
+
+            MIN_TIME_WINDOW
+
+            * Math.pow(
+
+                BUFFER_SECONDS
+                / MIN_TIME_WINDOW,
+
+                fraction
+
+            )
+
+        );
+
+    }
+
+
+    function timeToSlider(
+        seconds
+    ) {
+
+
+        const fraction =
+
+            Math.log(
+
+                seconds
+                / MIN_TIME_WINDOW
+
+            )
+
+            /
+
+            Math.log(
+
+                BUFFER_SECONDS
+                / MIN_TIME_WINDOW
+
+            );
+
+
+        return Math.round(
+            fraction * 100
+        );
+
+    }
+
+
+    function formatDuration(
+        seconds
+    ) {
+
+
+        if (
+            seconds < 1
+        ) {
+
+
+            return (
+
+                seconds * 1000
+
+            ).toFixed(1)
+            + " ms";
+
+        }
+
+
+        return seconds.toFixed(2)
+            + " s";
+
+    }
+
+
+    function setTimeWindow(
+        seconds
+    ) {
+
+
+        visibleTime =
+
+            Math.max(
+
+                MIN_TIME_WINDOW,
+
+                Math.min(
+                    BUFFER_SECONDS,
+                    seconds
+                )
+
+            );
+
+
+        timeSlider.value =
+            timeToSlider(
+                visibleTime
+            );
+
+
+        timeValue.textContent =
+            formatDuration(
+                visibleTime
+            );
+
+
+        draw();
+
+    }
+
+
+    // ========================================================
+    // EVENTS
+    // ========================================================
+
+    microphoneButton.addEventListener(
+        "click",
+        async function () {
+
+
+            if (
+                microphoneRunning
+            ) {
+
+
+                await stopMicrophone();
+
+
+            } else {
+
+
+                await startMicrophone();
+
+            }
+
+        }
+    );
+
+
+    captureButton.addEventListener(
+        "click",
+        captureInstrument
+    );
+
+
+    instrumentName.addEventListener(
+        "keydown",
+        function (event) {
+
+
+            if (
+                event.key === "Enter"
+                &&
+                microphoneRunning
+            ) {
+
+
+                captureInstrument();
+
+            }
+
+        }
+    );
+
+
+    clearButton.addEventListener(
+        "click",
+        function () {
+
+
+            recordings =
+                [];
+
+
+            updateRecordingList();
+
+
+            draw();
+
+
+            messageDisplay.textContent =
+                "All frozen recordings cleared.";
+
+        }
+    );
+
+
+    timeSlider.addEventListener(
+        "input",
+        function () {
+
+
+            setTimeWindow(
+
+                sliderToTime(
+
+                    parseFloat(
+                        timeSlider.value
+                    )
+
+                )
+
+            );
+
+        }
+    );
+
+
+    positionSlider.addEventListener(
+        "input",
+        function () {
+
+
+            recordingPosition =
+
+                parseFloat(
+                    positionSlider.value
+                )
+                / 100;
+
+
+            const percentage =
+
+                Math.round(
+                    recordingPosition
+                    * 100
+                );
+
+
+            if (
+                percentage === 0
+            ) {
+
+
+                positionValue.textContent =
+                    "Start";
+
+
+            } else if (
+                percentage === 100
+            ) {
+
+
+                positionValue.textContent =
+                    "End";
+
+
+            } else {
+
+
+                positionValue.textContent =
+
+                    percentage
+                    + "%";
+
+            }
+
+
+            draw();
+
+        }
+    );
+
+
+    amplitudeSlider.addEventListener(
+        "input",
+        function () {
+
+
+            amplitudeRange =
+
+                parseFloat(
+                    amplitudeSlider.value
+                )
+
+                / 100;
+
+
+            amplitudeValue.textContent =
+
+                "±"
+                + amplitudeRange
+                    .toFixed(2);
+
+
+            draw();
+
+        }
+    );
+
+
+    showLive.addEventListener(
+        "change",
+        draw
+    );
+
+
+    normalise.addEventListener(
+        "change",
+        draw
+    );
+
+
+    document
+        .querySelectorAll(
+            ".quickView"
+        )
+        .forEach(
+            function (button) {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        setTimeWindow(
+
+                            parseFloat(
+                                button.dataset.time
+                            )
+
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // ========================================================
+    // RESIZE
+    // ========================================================
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+
+    const observer =
+        new ResizeObserver(
+            resizeCanvas
+        );
+
+
+    observer.observe(
+        canvas
+    );
+
+
+    // ========================================================
+    // LIVE REFRESH
+    // ========================================================
+
+    let previousFrame =
+        0;
+
+
+    function animationLoop(
+        timestamp
+    ) {
+
+
+        if (
+            timestamp
+            - previousFrame
+            > 30
+        ) {
+
+
+            draw();
+
+
+            previousFrame =
+                timestamp;
+
+        }
+
+
+        requestAnimationFrame(
+            animationLoop
+        );
+
+    }
+
+
+    requestAnimationFrame(
+        animationLoop
+    );
+
+
+    // ========================================================
+    // INITIALISE
+    // ========================================================
+
+    setTimeWindow(
+        0.020
+    );
+
+
+    updateRecordingList();
+
+
+    resizeCanvas();
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>

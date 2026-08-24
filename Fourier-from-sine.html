@@ -1,0 +1,3104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Harmonics and Fourier Transform</title>
+
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    html,
+    body {
+
+        margin: 0;
+        padding: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        font-family: Arial, Helvetica, sans-serif;
+
+        color: #222222;
+    }
+
+
+    body {
+        overflow: hidden;
+    }
+
+
+    /* ========================================================
+       MAIN PAGE
+       ======================================================== */
+
+    .demo {
+
+        width: 100%;
+        height: 100vh;
+
+        padding: 14px 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        background: white;
+    }
+
+
+    /* ========================================================
+       TITLE
+       ======================================================== */
+
+    h1 {
+
+        margin: 0 0 3px 0;
+
+        text-align: center;
+
+        color: #0D47A1;
+
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+
+    .subtitle {
+
+        text-align: center;
+
+        color: #555555;
+
+        font-size: 14px;
+
+        margin-bottom: 5px;
+    }
+
+
+    /* ========================================================
+       EQUATION
+       ======================================================== */
+
+    .equation {
+
+        text-align: center;
+
+        color: #1565C0;
+
+        font-size: 17px;
+        font-weight: 600;
+
+        margin-bottom: 7px;
+    }
+
+
+    /* ========================================================
+       TWO PLOTS
+       ======================================================== */
+
+    .plots {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 14px;
+
+        flex: 1;
+
+        min-height: 270px;
+    }
+
+
+    .plot-box {
+
+        display: flex;
+        flex-direction: column;
+
+        min-height: 0;
+    }
+
+
+    .plot-title {
+
+        text-align: center;
+
+        color: #0D47A1;
+
+        font-size: 16px;
+        font-weight: bold;
+
+        margin-bottom: 4px;
+    }
+
+
+    .plot-container {
+
+        flex: 1;
+
+        min-height: 0;
+    }
+
+
+    canvas {
+
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 8px;
+    }
+
+
+    .domain-label {
+
+        text-align: center;
+
+        margin-top: 4px;
+
+        color: #555555;
+
+        font-size: 12px;
+    }
+
+
+    /* ========================================================
+       AUDIO
+       ======================================================== */
+
+    .audio-controls {
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 13px;
+
+        margin-top: 7px;
+    }
+
+
+    #playButton {
+
+        padding: 8px 22px;
+
+        border: none;
+
+        border-radius: 7px;
+
+        background: #1565C0;
+
+        color: white;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        cursor: pointer;
+    }
+
+
+    #playButton:hover {
+        background: #0D47A1;
+    }
+
+
+    #playButton.playing {
+        background: #C62828;
+    }
+
+
+    .audio-note {
+
+        color: #666666;
+
+        font-size: 11px;
+    }
+
+
+    /* ========================================================
+       CONTROLS
+       ======================================================== */
+
+    .controls {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 12px;
+
+        margin-top: 8px;
+    }
+
+
+    .control-box {
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 8px;
+
+        padding: 9px 13px;
+
+        background: white;
+    }
+
+
+    .control-box h2 {
+
+        margin: 0 0 2px 0;
+
+        font-size: 16px;
+
+        color: #0D47A1;
+    }
+
+
+    .frequency-label {
+
+        color: #666666;
+
+        font-size: 11px;
+
+        margin-bottom: 6px;
+    }
+
+
+    .slider-row {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+    }
+
+
+    .slider-row + .slider-row {
+        margin-top: 6px;
+    }
+
+
+    .slider-label {
+
+        width: 62px;
+
+        flex-shrink: 0;
+
+        color: #555555;
+
+        font-size: 11px;
+    }
+
+
+    input[type="range"] {
+
+        flex: 1;
+
+        min-width: 0;
+    }
+
+
+    .value {
+
+        min-width: 52px;
+
+        text-align: right;
+
+        color: #1565C0;
+
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+
+    /* ========================================================
+       PRESETS
+       ======================================================== */
+
+    .presets {
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-top: 7px;
+    }
+
+
+    .presets span {
+
+        color: #555555;
+
+        font-size: 11px;
+
+        font-weight: bold;
+    }
+
+
+    .preset-button {
+
+        padding: 4px 9px;
+
+        border: 1px solid #B7C7D6;
+
+        border-radius: 5px;
+
+        background: #F5F8FB;
+
+        font-size: 11px;
+
+        cursor: pointer;
+    }
+
+
+    .preset-button:hover {
+
+        background: #E3F2FD;
+
+        border-color: #1565C0;
+    }
+
+
+    @media (max-width: 850px) {
+
+        body {
+            overflow: auto;
+        }
+
+
+        .demo {
+
+            height: auto;
+
+            min-height: 100vh;
+        }
+
+
+        .plots {
+
+            grid-template-columns: 1fr;
+
+            height: 650px;
+
+            flex: none;
+        }
+
+
+        .controls {
+
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="demo">
+
+
+    <!-- =====================================================
+         TITLE
+         ===================================================== -->
+
+    <h1>
+        Harmonics and the Fourier Transform
+    </h1>
+
+
+    <div class="subtitle">
+
+        One signal — two equivalent ways of describing it
+
+    </div>
+
+
+    <!-- =====================================================
+         EQUATION
+         ===================================================== -->
+
+    <div
+        id="equation"
+        class="equation"
+    >
+        x(t) = 1.00 sin(2π·440t)
+    </div>
+
+
+    <!-- =====================================================
+         PLOTS
+         ===================================================== -->
+
+    <div class="plots">
+
+
+        <!-- =================================================
+             TIME DOMAIN
+             ================================================= -->
+
+        <div class="plot-box">
+
+            <div class="plot-title">
+                Time Domain
+            </div>
+
+
+            <div class="plot-container">
+
+                <canvas id="timeCanvas">
+                </canvas>
+
+            </div>
+
+
+            <div class="domain-label">
+                How the signal changes with time
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             FREQUENCY DOMAIN
+             ================================================= -->
+
+        <div class="plot-box">
+
+            <div class="plot-title">
+                Frequency Domain — Fourier Transform
+            </div>
+
+
+            <div class="plot-container">
+
+                <canvas id="frequencyCanvas">
+                </canvas>
+
+            </div>
+
+
+            <div class="domain-label">
+                Which frequencies are present, and how strongly
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         AUDIO
+         ===================================================== -->
+
+    <div class="audio-controls">
+
+        <button
+            id="playButton"
+            type="button"
+        >
+            ▶ Play sound
+        </button>
+
+
+        <span class="audio-note">
+
+            Change the frequency and harmonic amplitudes while listening.
+
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTROLS
+         ===================================================== -->
+
+    <div class="controls">
+
+
+        <!-- =================================================
+             FUNDAMENTAL
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                Fundamental
+            </h2>
+
+
+            <div
+                id="frequency1Label"
+                class="frequency-label"
+            >
+                f = 440 Hz
+            </div>
+
+
+            <div class="slider-row">
+
+                <span class="slider-label">
+                    Frequency
+                </span>
+
+
+                <input
+                    id="frequencySlider"
+                    type="range"
+
+                    min="100"
+                    max="1000"
+                    step="10"
+
+                    value="440"
+                >
+
+
+                <span
+                    id="frequencyValue"
+                    class="value"
+                >
+                    440 Hz
+                </span>
+
+            </div>
+
+
+            <div class="slider-row">
+
+                <span class="slider-label">
+                    Amplitude
+                </span>
+
+
+                <input
+                    id="amp1"
+                    type="range"
+
+                    min="0"
+                    max="1"
+
+                    step="0.01"
+
+                    value="1"
+                >
+
+
+                <span
+                    id="value1"
+                    class="value"
+                >
+                    1.00
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             SECOND HARMONIC
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                2nd Harmonic
+            </h2>
+
+
+            <div
+                id="frequency2Label"
+                class="frequency-label"
+            >
+                2f = 880 Hz
+            </div>
+
+
+            <div class="slider-row">
+
+                <span class="slider-label">
+                    Amplitude
+                </span>
+
+
+                <input
+                    id="amp2"
+                    type="range"
+
+                    min="0"
+                    max="1"
+
+                    step="0.01"
+
+                    value="0"
+                >
+
+
+                <span
+                    id="value2"
+                    class="value"
+                >
+                    0.00
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             THIRD HARMONIC
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                3rd Harmonic
+            </h2>
+
+
+            <div
+                id="frequency3Label"
+                class="frequency-label"
+            >
+                3f = 1320 Hz
+            </div>
+
+
+            <div class="slider-row">
+
+                <span class="slider-label">
+                    Amplitude
+                </span>
+
+
+                <input
+                    id="amp3"
+                    type="range"
+
+                    min="0"
+                    max="1"
+
+                    step="0.01"
+
+                    value="0"
+                >
+
+
+                <span
+                    id="value3"
+                    class="value"
+                >
+                    0.00
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         PRESETS
+         ===================================================== -->
+
+    <div class="presets">
+
+        <span>
+            Try:
+        </span>
+
+
+        <button
+            id="fundamentalOnly"
+            class="preset-button"
+            type="button"
+        >
+            Fundamental only
+        </button>
+
+
+        <button
+            id="secondPreset"
+            class="preset-button"
+            type="button"
+        >
+            Add 2nd
+        </button>
+
+
+        <button
+            id="thirdPreset"
+            class="preset-button"
+            type="button"
+        >
+            Add 2nd + 3rd
+        </button>
+
+
+        <button
+            id="equalPreset"
+            class="preset-button"
+            type="button"
+        >
+            Equal harmonics
+        </button>
+
+
+        <button
+            id="resetButton"
+            class="preset-button"
+            type="button"
+        >
+            Reset
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+(function () {
+
+
+    // ========================================================
+    // FIXED FREQUENCY AXIS
+    // ========================================================
+
+    const MAX_FREQUENCY =
+        3200;
+
+
+    const FREQUENCY_TICKS = [
+
+        0,
+        500,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000
+
+    ];
+
+
+    // ========================================================
+    // ELEMENTS
+    // ========================================================
+
+    const timeCanvas =
+        document.getElementById(
+            "timeCanvas"
+        );
+
+
+    const timeCtx =
+        timeCanvas.getContext(
+            "2d"
+        );
+
+
+    const frequencyCanvas =
+        document.getElementById(
+            "frequencyCanvas"
+        );
+
+
+    const frequencyCtx =
+        frequencyCanvas.getContext(
+            "2d"
+        );
+
+
+    const frequencySlider =
+        document.getElementById(
+            "frequencySlider"
+        );
+
+
+    const amp1 =
+        document.getElementById(
+            "amp1"
+        );
+
+
+    const amp2 =
+        document.getElementById(
+            "amp2"
+        );
+
+
+    const amp3 =
+        document.getElementById(
+            "amp3"
+        );
+
+
+    const frequencyValue =
+        document.getElementById(
+            "frequencyValue"
+        );
+
+
+    const frequency1Label =
+        document.getElementById(
+            "frequency1Label"
+        );
+
+
+    const frequency2Label =
+        document.getElementById(
+            "frequency2Label"
+        );
+
+
+    const frequency3Label =
+        document.getElementById(
+            "frequency3Label"
+        );
+
+
+    const value1 =
+        document.getElementById(
+            "value1"
+        );
+
+
+    const value2 =
+        document.getElementById(
+            "value2"
+        );
+
+
+    const value3 =
+        document.getElementById(
+            "value3"
+        );
+
+
+    const equation =
+        document.getElementById(
+            "equation"
+        );
+
+
+    const playButton =
+        document.getElementById(
+            "playButton"
+        );
+
+
+    // ========================================================
+    // AUDIO STATE
+    // ========================================================
+
+    let audioContext =
+        null;
+
+
+    let oscillator1 =
+        null;
+
+
+    let oscillator2 =
+        null;
+
+
+    let oscillator3 =
+        null;
+
+
+    let gain1 =
+        null;
+
+
+    let gain2 =
+        null;
+
+
+    let gain3 =
+        null;
+
+
+    let masterGain =
+        null;
+
+
+    let playing =
+        false;
+
+
+    // ========================================================
+    // CURRENT PARAMETERS
+    // ========================================================
+
+    function getParameters() {
+
+
+        const F1 =
+            parseFloat(
+                frequencySlider.value
+            );
+
+
+        return {
+
+            F1: F1,
+
+            F2: 2 * F1,
+
+            F3: 3 * F1,
+
+            A1:
+                parseFloat(
+                    amp1.value
+                ),
+
+            A2:
+                parseFloat(
+                    amp2.value
+                ),
+
+            A3:
+                parseFloat(
+                    amp3.value
+                )
+
+        };
+
+    }
+
+
+    // ========================================================
+    // CANVAS RESIZE
+    // ========================================================
+
+    function resizeOneCanvas(
+        canvas,
+        ctx
+    ) {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        if (
+            rect.width <= 0
+            ||
+            rect.height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        const dpr =
+            window.devicePixelRatio
+            || 1;
+
+
+        canvas.width =
+            Math.round(
+                rect.width * dpr
+            );
+
+
+        canvas.height =
+            Math.round(
+                rect.height * dpr
+            );
+
+
+        ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+    }
+
+
+    function resizeCanvases() {
+
+
+        resizeOneCanvas(
+            timeCanvas,
+            timeCtx
+        );
+
+
+        resizeOneCanvas(
+            frequencyCanvas,
+            frequencyCtx
+        );
+
+
+        draw();
+
+    }
+
+
+    // ========================================================
+    // DRAW EVERYTHING
+    // ========================================================
+
+    function draw() {
+
+
+        drawTimeDomain();
+
+
+        drawFrequencyDomain();
+
+
+        updateText();
+
+    }
+
+
+    // ========================================================
+    // TIME DOMAIN
+    // ========================================================
+
+    function drawTimeDomain() {
+
+
+        const p =
+            getParameters();
+
+
+        const rect =
+            timeCanvas
+                .getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        const left =
+            53;
+
+
+        const right =
+            15;
+
+
+        const top =
+            12;
+
+
+        const bottom =
+            34;
+
+
+        const graphWidth =
+            width
+            - left
+            - right;
+
+
+        const graphHeight =
+            height
+            - top
+            - bottom;
+
+
+        const centreY =
+            top
+            + graphHeight / 2;
+
+
+        // Show 10 milliseconds
+
+        const timeEnd =
+            0.010;
+
+
+        // Maximum possible amplitude = 3
+
+        const maxAmplitude =
+            3.2;
+
+
+        // ====================================================
+        // BACKGROUND
+        // ====================================================
+
+        timeCtx.fillStyle =
+            "#FFFFFF";
+
+
+        timeCtx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        // ====================================================
+        // GRID
+        // ====================================================
+
+        timeCtx.strokeStyle =
+            "#E4E8EC";
+
+
+        timeCtx.lineWidth =
+            1;
+
+
+        // Vertical grid
+
+        for (
+            let i = 0;
+            i <= 10;
+            i++
+        ) {
+
+
+            const x =
+                left
+                + graphWidth
+                * i / 10;
+
+
+            timeCtx.beginPath();
+
+
+            timeCtx.moveTo(
+                x,
+                top
+            );
+
+
+            timeCtx.lineTo(
+                x,
+                top + graphHeight
+            );
+
+
+            timeCtx.stroke();
+
+        }
+
+
+        // Horizontal grid
+
+        for (
+            let i = 0;
+            i <= 6;
+            i++
+        ) {
+
+
+            const y =
+                top
+                + graphHeight
+                * i / 6;
+
+
+            timeCtx.beginPath();
+
+
+            timeCtx.moveTo(
+                left,
+                y
+            );
+
+
+            timeCtx.lineTo(
+                left + graphWidth,
+                y
+            );
+
+
+            timeCtx.stroke();
+
+        }
+
+
+        // ====================================================
+        // ZERO AXIS
+        // ====================================================
+
+        timeCtx.strokeStyle =
+            "#777777";
+
+
+        timeCtx.lineWidth =
+            1.3;
+
+
+        timeCtx.beginPath();
+
+
+        timeCtx.moveTo(
+            left,
+            centreY
+        );
+
+
+        timeCtx.lineTo(
+            left + graphWidth,
+            centreY
+        );
+
+
+        timeCtx.stroke();
+
+
+        // ====================================================
+        // COMPONENT WAVES
+        // ====================================================
+
+        drawTimeComponent(
+
+            p.A1,
+            p.F1,
+
+            "#909090",
+            [6, 5],
+
+            left,
+            graphWidth,
+            graphHeight,
+            centreY,
+
+            timeEnd,
+            maxAmplitude
+
+        );
+
+
+        drawTimeComponent(
+
+            p.A2,
+            p.F2,
+
+            "#B0BEC5",
+            [4, 5],
+
+            left,
+            graphWidth,
+            graphHeight,
+            centreY,
+
+            timeEnd,
+            maxAmplitude
+
+        );
+
+
+        drawTimeComponent(
+
+            p.A3,
+            p.F3,
+
+            "#CFD8DC",
+            [2, 5],
+
+            left,
+            graphWidth,
+            graphHeight,
+            centreY,
+
+            timeEnd,
+            maxAmplitude
+
+        );
+
+
+        // ====================================================
+        // SUMMED WAVEFORM
+        // ====================================================
+
+        timeCtx.strokeStyle =
+            "#1565C0";
+
+
+        timeCtx.lineWidth =
+            3;
+
+
+        timeCtx.setLineDash([]);
+
+
+        timeCtx.beginPath();
+
+
+        for (
+            let px = 0;
+            px <= graphWidth;
+            px++
+        ) {
+
+
+            const t =
+                timeEnd
+                * px
+                / graphWidth;
+
+
+            const y =
+
+                p.A1
+                * Math.sin(
+                    2
+                    * Math.PI
+                    * p.F1
+                    * t
+                )
+
+                +
+
+                p.A2
+                * Math.sin(
+                    2
+                    * Math.PI
+                    * p.F2
+                    * t
+                )
+
+                +
+
+                p.A3
+                * Math.sin(
+                    2
+                    * Math.PI
+                    * p.F3
+                    * t
+                );
+
+
+            const x =
+                left + px;
+
+
+            const screenY =
+
+                centreY
+
+                - (
+                    y
+                    / maxAmplitude
+                )
+
+                * graphHeight
+                / 2;
+
+
+            if (
+                px === 0
+            ) {
+
+
+                timeCtx.moveTo(
+                    x,
+                    screenY
+                );
+
+
+            } else {
+
+
+                timeCtx.lineTo(
+                    x,
+                    screenY
+                );
+
+            }
+
+        }
+
+
+        timeCtx.stroke();
+
+
+        // ====================================================
+        // TIME LABELS
+        // ====================================================
+
+        timeCtx.fillStyle =
+            "#555555";
+
+
+        timeCtx.font =
+            "11px Arial";
+
+
+        timeCtx.textAlign =
+            "center";
+
+
+        for (
+            let i = 0;
+            i <= 5;
+            i++
+        ) {
+
+
+            const x =
+                left
+                + graphWidth
+                * i / 5;
+
+
+            const milliseconds =
+                10 * i / 5;
+
+
+            timeCtx.fillText(
+
+                milliseconds.toFixed(0),
+
+                x,
+
+                top
+                + graphHeight
+                + 17
+
+            );
+
+        }
+
+
+        // ====================================================
+        // AXIS TITLES
+        // ====================================================
+
+        timeCtx.fillStyle =
+            "#333333";
+
+
+        timeCtx.font =
+            "12px Arial";
+
+
+        timeCtx.fillText(
+
+            "Time (ms)",
+
+            left
+            + graphWidth / 2,
+
+            height - 4
+
+        );
+
+
+        timeCtx.save();
+
+
+        timeCtx.translate(
+            13,
+            centreY
+        );
+
+
+        timeCtx.rotate(
+            -Math.PI / 2
+        );
+
+
+        timeCtx.fillText(
+            "Amplitude",
+            0,
+            0
+        );
+
+
+        timeCtx.restore();
+
+    }
+
+
+    // ========================================================
+    // DRAW ONE TIME-DOMAIN COMPONENT
+    // ========================================================
+
+    function drawTimeComponent(
+
+        amplitude,
+        frequency,
+
+        colour,
+        dash,
+
+        left,
+        graphWidth,
+        graphHeight,
+        centreY,
+
+        timeEnd,
+        maxAmplitude
+
+    ) {
+
+
+        if (
+            amplitude <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        timeCtx.strokeStyle =
+            colour;
+
+
+        timeCtx.lineWidth =
+            1.5;
+
+
+        timeCtx.setLineDash(
+            dash
+        );
+
+
+        timeCtx.beginPath();
+
+
+        for (
+            let px = 0;
+            px <= graphWidth;
+            px++
+        ) {
+
+
+            const t =
+                timeEnd
+                * px
+                / graphWidth;
+
+
+            const y =
+
+                amplitude
+
+                * Math.sin(
+
+                    2
+                    * Math.PI
+                    * frequency
+                    * t
+
+                );
+
+
+            const x =
+                left + px;
+
+
+            const screenY =
+
+                centreY
+
+                - (
+                    y
+                    / maxAmplitude
+                )
+
+                * graphHeight
+                / 2;
+
+
+            if (
+                px === 0
+            ) {
+
+
+                timeCtx.moveTo(
+                    x,
+                    screenY
+                );
+
+
+            } else {
+
+
+                timeCtx.lineTo(
+                    x,
+                    screenY
+                );
+
+            }
+
+        }
+
+
+        timeCtx.stroke();
+
+
+        timeCtx.setLineDash([]);
+
+    }
+
+
+    // ========================================================
+    // FREQUENCY DOMAIN
+    // ========================================================
+
+    function drawFrequencyDomain() {
+
+
+        const p =
+            getParameters();
+
+
+        const rect =
+            frequencyCanvas
+                .getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        const left =
+            55;
+
+
+        const right =
+            18;
+
+
+        const top =
+            16;
+
+
+        /*
+            More space is reserved at the bottom
+            because the frequency axis now has
+            fixed tick labels.
+        */
+
+        const bottom =
+            52;
+
+
+        const graphWidth =
+            width
+            - left
+            - right;
+
+
+        const graphHeight =
+            height
+            - top
+            - bottom;
+
+
+        const baseline =
+            top
+            + graphHeight;
+
+
+        // ====================================================
+        // BACKGROUND
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#FFFFFF";
+
+
+        frequencyCtx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        // ====================================================
+        // FIXED FREQUENCY GRID
+        // ====================================================
+
+        frequencyCtx.strokeStyle =
+            "#E4E8EC";
+
+
+        frequencyCtx.lineWidth =
+            1;
+
+
+        FREQUENCY_TICKS.forEach(
+            function (frequency) {
+
+
+                const x =
+
+                    left
+
+                    + (
+                        frequency
+                        / MAX_FREQUENCY
+                    )
+
+                    * graphWidth;
+
+
+                frequencyCtx.beginPath();
+
+
+                frequencyCtx.moveTo(
+                    x,
+                    top
+                );
+
+
+                frequencyCtx.lineTo(
+                    x,
+                    baseline
+                );
+
+
+                frequencyCtx.stroke();
+
+            }
+        );
+
+
+        // ====================================================
+        // HORIZONTAL MAGNITUDE GRID
+        // ====================================================
+
+        for (
+            let i = 0;
+            i <= 5;
+            i++
+        ) {
+
+
+            const y =
+                top
+                + graphHeight
+                * i / 5;
+
+
+            frequencyCtx.beginPath();
+
+
+            frequencyCtx.moveTo(
+                left,
+                y
+            );
+
+
+            frequencyCtx.lineTo(
+                left + graphWidth,
+                y
+            );
+
+
+            frequencyCtx.stroke();
+
+        }
+
+
+        // ====================================================
+        // AXES
+        // ====================================================
+
+        frequencyCtx.strokeStyle =
+            "#777777";
+
+
+        frequencyCtx.lineWidth =
+            1.3;
+
+
+        frequencyCtx.beginPath();
+
+
+        frequencyCtx.moveTo(
+            left,
+            top
+        );
+
+
+        frequencyCtx.lineTo(
+            left,
+            baseline
+        );
+
+
+        frequencyCtx.lineTo(
+            left + graphWidth,
+            baseline
+        );
+
+
+        frequencyCtx.stroke();
+
+
+        // ====================================================
+        // FIXED FREQUENCY AXIS LABELS
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#666666";
+
+
+        frequencyCtx.font =
+            "10px Arial";
+
+
+        frequencyCtx.textAlign =
+            "center";
+
+
+        FREQUENCY_TICKS.forEach(
+            function (frequency) {
+
+
+                const x =
+
+                    left
+
+                    + (
+                        frequency
+                        / MAX_FREQUENCY
+                    )
+
+                    * graphWidth;
+
+
+                // Tick
+
+                frequencyCtx.strokeStyle =
+                    "#777777";
+
+
+                frequencyCtx.lineWidth =
+                    1;
+
+
+                frequencyCtx.beginPath();
+
+
+                frequencyCtx.moveTo(
+                    x,
+                    baseline
+                );
+
+
+                frequencyCtx.lineTo(
+                    x,
+                    baseline + 5
+                );
+
+
+                frequencyCtx.stroke();
+
+
+                // Number
+
+                frequencyCtx.fillStyle =
+                    "#666666";
+
+
+                frequencyCtx.fillText(
+
+                    frequency.toString(),
+
+                    x,
+
+                    baseline + 17
+
+                );
+
+            }
+        );
+
+
+        // ====================================================
+        // FOURIER COMPONENTS
+        // ====================================================
+
+        drawSpectrumStem(
+
+            p.F1,
+            p.A1,
+
+            "f",
+
+            left,
+            graphWidth,
+            graphHeight,
+            baseline
+
+        );
+
+
+        drawSpectrumStem(
+
+            p.F2,
+            p.A2,
+
+            "2f",
+
+            left,
+            graphWidth,
+            graphHeight,
+            baseline
+
+        );
+
+
+        drawSpectrumStem(
+
+            p.F3,
+            p.A3,
+
+            "3f",
+
+            left,
+            graphWidth,
+            graphHeight,
+            baseline
+
+        );
+
+
+        // ====================================================
+        // MAGNITUDE SCALE
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#666666";
+
+
+        frequencyCtx.font =
+            "10px Arial";
+
+
+        frequencyCtx.textAlign =
+            "right";
+
+
+        for (
+            let i = 0;
+            i <= 5;
+            i++
+        ) {
+
+
+            const magnitude =
+                1 - i / 5;
+
+
+            const y =
+                top
+                + graphHeight
+                * i / 5;
+
+
+            frequencyCtx.fillText(
+
+                magnitude.toFixed(1),
+
+                left - 5,
+
+                y + 3
+
+            );
+
+        }
+
+
+        // ====================================================
+        // AXIS TITLES
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#333333";
+
+
+        frequencyCtx.font =
+            "12px Arial";
+
+
+        frequencyCtx.textAlign =
+            "center";
+
+
+        frequencyCtx.fillText(
+
+            "Frequency (Hz)",
+
+            left
+            + graphWidth / 2,
+
+            height - 4
+
+        );
+
+
+        frequencyCtx.save();
+
+
+        frequencyCtx.translate(
+            13,
+            top
+            + graphHeight / 2
+        );
+
+
+        frequencyCtx.rotate(
+            -Math.PI / 2
+        );
+
+
+        frequencyCtx.fillText(
+            "Magnitude",
+            0,
+            0
+        );
+
+
+        frequencyCtx.restore();
+
+    }
+
+
+    // ========================================================
+    // DRAW ONE FOURIER COMPONENT
+    // ========================================================
+
+    function drawSpectrumStem(
+
+        frequency,
+        amplitude,
+
+        harmonicLabel,
+
+        left,
+        graphWidth,
+        graphHeight,
+        baseline
+
+    ) {
+
+
+        if (
+            amplitude <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            Position is calculated using the fixed
+            0–3200 Hz frequency scale.
+        */
+
+        const x =
+
+            left
+
+            + (
+                frequency
+                / MAX_FREQUENCY
+            )
+
+            * graphWidth;
+
+
+        const y =
+
+            baseline
+
+            - amplitude
+            * graphHeight;
+
+
+        // ====================================================
+        // STEM
+        // ====================================================
+
+        frequencyCtx.strokeStyle =
+            "#1565C0";
+
+
+        frequencyCtx.lineWidth =
+            4;
+
+
+        frequencyCtx.beginPath();
+
+
+        frequencyCtx.moveTo(
+            x,
+            baseline
+        );
+
+
+        frequencyCtx.lineTo(
+            x,
+            y
+        );
+
+
+        frequencyCtx.stroke();
+
+
+        // ====================================================
+        // PEAK DOT
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#1565C0";
+
+
+        frequencyCtx.beginPath();
+
+
+        frequencyCtx.arc(
+            x,
+            y,
+            5,
+            0,
+            2 * Math.PI
+        );
+
+
+        frequencyCtx.fill();
+
+
+        // ====================================================
+        // AMPLITUDE VALUE
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#1565C0";
+
+
+        frequencyCtx.font =
+            "11px Arial";
+
+
+        frequencyCtx.textAlign =
+            "center";
+
+
+        frequencyCtx.fillText(
+
+            amplitude.toFixed(2),
+
+            x,
+
+            Math.max(
+                11,
+                y - 20
+            )
+
+        );
+
+
+        // ====================================================
+        // HARMONIC + ACTUAL FREQUENCY
+        // ====================================================
+
+        frequencyCtx.fillStyle =
+            "#333333";
+
+
+        frequencyCtx.font =
+            "11px Arial";
+
+
+        frequencyCtx.fillText(
+
+            harmonicLabel,
+
+            x,
+
+            Math.max(
+                23,
+                y - 8
+            )
+
+        );
+
+
+        frequencyCtx.fillStyle =
+            "#777777";
+
+
+        frequencyCtx.font =
+            "9px Arial";
+
+
+        frequencyCtx.fillText(
+
+            frequency.toFixed(0)
+            + " Hz",
+
+            x,
+
+            Math.max(
+                34,
+                y + 5
+            )
+
+        );
+
+    }
+
+
+    // ========================================================
+    // UPDATE TEXT
+    // ========================================================
+
+    function updateText() {
+
+
+        const p =
+            getParameters();
+
+
+        frequencyValue.textContent =
+
+            p.F1.toFixed(0)
+            + " Hz";
+
+
+        frequency1Label.textContent =
+
+            "f = "
+            + p.F1.toFixed(0)
+            + " Hz";
+
+
+        frequency2Label.textContent =
+
+            "2f = "
+            + p.F2.toFixed(0)
+            + " Hz";
+
+
+        frequency3Label.textContent =
+
+            "3f = "
+            + p.F3.toFixed(0)
+            + " Hz";
+
+
+        value1.textContent =
+            p.A1.toFixed(2);
+
+
+        value2.textContent =
+            p.A2.toFixed(2);
+
+
+        value3.textContent =
+            p.A3.toFixed(2);
+
+
+        // ====================================================
+        // EQUATION
+        // ====================================================
+
+        let text =
+
+            "x(t) = "
+            + p.A1.toFixed(2)
+            + " sin(2π·"
+            + p.F1.toFixed(0)
+            + "t)";
+
+
+        if (
+            p.A2 > 0
+        ) {
+
+
+            text +=
+
+                " + "
+                + p.A2.toFixed(2)
+                + " sin(2π·"
+                + p.F2.toFixed(0)
+                + "t)";
+
+        }
+
+
+        if (
+            p.A3 > 0
+        ) {
+
+
+            text +=
+
+                " + "
+                + p.A3.toFixed(2)
+                + " sin(2π·"
+                + p.F3.toFixed(0)
+                + "t)";
+
+        }
+
+
+        equation.textContent =
+            text;
+
+    }
+
+
+    // ========================================================
+    // AUDIO GAIN
+    // ========================================================
+
+    function safeGain(
+        amplitude
+    ) {
+
+
+        return amplitude * 0.065;
+
+    }
+
+
+    // ========================================================
+    // START SOUND
+    // ========================================================
+
+    async function startAudio() {
+
+
+        if (!audioContext) {
+
+
+            audioContext =
+                new (
+                    window.AudioContext
+                    ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+
+        if (
+            audioContext.state
+            === "suspended"
+        ) {
+
+
+            await audioContext.resume();
+
+        }
+
+
+        if (playing) {
+
+            return;
+
+        }
+
+
+        const p =
+            getParameters();
+
+
+        // ====================================================
+        // OSCILLATORS
+        // ====================================================
+
+        oscillator1 =
+            audioContext.createOscillator();
+
+
+        oscillator2 =
+            audioContext.createOscillator();
+
+
+        oscillator3 =
+            audioContext.createOscillator();
+
+
+        oscillator1.type =
+            "sine";
+
+
+        oscillator2.type =
+            "sine";
+
+
+        oscillator3.type =
+            "sine";
+
+
+        oscillator1.frequency.value =
+            p.F1;
+
+
+        oscillator2.frequency.value =
+            p.F2;
+
+
+        oscillator3.frequency.value =
+            p.F3;
+
+
+        // ====================================================
+        // GAINS
+        // ====================================================
+
+        gain1 =
+            audioContext.createGain();
+
+
+        gain2 =
+            audioContext.createGain();
+
+
+        gain3 =
+            audioContext.createGain();
+
+
+        masterGain =
+            audioContext.createGain();
+
+
+        masterGain.gain.value =
+            1;
+
+
+        gain1.gain.value =
+            0;
+
+
+        gain2.gain.value =
+            0;
+
+
+        gain3.gain.value =
+            0;
+
+
+        // ====================================================
+        // CONNECTIONS
+        // ====================================================
+
+        oscillator1.connect(
+            gain1
+        );
+
+
+        oscillator2.connect(
+            gain2
+        );
+
+
+        oscillator3.connect(
+            gain3
+        );
+
+
+        gain1.connect(
+            masterGain
+        );
+
+
+        gain2.connect(
+            masterGain
+        );
+
+
+        gain3.connect(
+            masterGain
+        );
+
+
+        masterGain.connect(
+            audioContext.destination
+        );
+
+
+        oscillator1.start();
+
+
+        oscillator2.start();
+
+
+        oscillator3.start();
+
+
+        playing =
+            true;
+
+
+        updateAudio();
+
+
+        playButton.textContent =
+            "■ Stop sound";
+
+
+        playButton.classList.add(
+            "playing"
+        );
+
+    }
+
+
+    // ========================================================
+    // UPDATE SOUND LIVE
+    // ========================================================
+
+    function updateAudio() {
+
+
+        if (
+            !playing
+            ||
+            !audioContext
+        ) {
+
+            return;
+
+        }
+
+
+        const p =
+            getParameters();
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        // ====================================================
+        // FREQUENCIES
+        // ====================================================
+
+        oscillator1.frequency
+            .setTargetAtTime(
+
+                p.F1,
+                now,
+                0.015
+
+            );
+
+
+        oscillator2.frequency
+            .setTargetAtTime(
+
+                p.F2,
+                now,
+                0.015
+
+            );
+
+
+        oscillator3.frequency
+            .setTargetAtTime(
+
+                p.F3,
+                now,
+                0.015
+
+            );
+
+
+        // ====================================================
+        // AMPLITUDES
+        // ====================================================
+
+        gain1.gain
+            .setTargetAtTime(
+
+                safeGain(
+                    p.A1
+                ),
+
+                now,
+                0.015
+
+            );
+
+
+        gain2.gain
+            .setTargetAtTime(
+
+                safeGain(
+                    p.A2
+                ),
+
+                now,
+                0.015
+
+            );
+
+
+        gain3.gain
+            .setTargetAtTime(
+
+                safeGain(
+                    p.A3
+                ),
+
+                now,
+                0.015
+
+            );
+
+    }
+
+
+    // ========================================================
+    // STOP SOUND
+    // ========================================================
+
+    function stopAudio() {
+
+
+        if (
+            !playing
+            ||
+            !audioContext
+        ) {
+
+            return;
+
+        }
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        masterGain.gain
+            .cancelScheduledValues(
+                now
+            );
+
+
+        masterGain.gain
+            .setValueAtTime(
+
+                masterGain.gain.value,
+
+                now
+
+            );
+
+
+        masterGain.gain
+            .linearRampToValueAtTime(
+
+                0,
+
+                now + 0.04
+
+            );
+
+
+        oscillator1.stop(
+            now + 0.05
+        );
+
+
+        oscillator2.stop(
+            now + 0.05
+        );
+
+
+        oscillator3.stop(
+            now + 0.05
+        );
+
+
+        oscillator1 =
+            null;
+
+
+        oscillator2 =
+            null;
+
+
+        oscillator3 =
+            null;
+
+
+        gain1 =
+            null;
+
+
+        gain2 =
+            null;
+
+
+        gain3 =
+            null;
+
+
+        masterGain =
+            null;
+
+
+        playing =
+            false;
+
+
+        playButton.textContent =
+            "▶ Play sound";
+
+
+        playButton.classList.remove(
+            "playing"
+        );
+
+    }
+
+
+    // ========================================================
+    // CONTROL CHANGE
+    // ========================================================
+
+    function controlChanged() {
+
+
+        draw();
+
+
+        updateAudio();
+
+    }
+
+
+    // ========================================================
+    // SLIDERS
+    // ========================================================
+
+    frequencySlider.addEventListener(
+        "input",
+        controlChanged
+    );
+
+
+    amp1.addEventListener(
+        "input",
+        controlChanged
+    );
+
+
+    amp2.addEventListener(
+        "input",
+        controlChanged
+    );
+
+
+    amp3.addEventListener(
+        "input",
+        controlChanged
+    );
+
+
+    // ========================================================
+    // PLAY / STOP
+    // ========================================================
+
+    playButton.addEventListener(
+        "click",
+        async function () {
+
+
+            if (
+                playing
+            ) {
+
+
+                stopAudio();
+
+
+            } else {
+
+
+                await startAudio();
+
+            }
+
+        }
+    );
+
+
+    // ========================================================
+    // PRESETS
+    // ========================================================
+
+    document
+        .getElementById(
+            "fundamentalOnly"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+
+                amp1.value =
+                    1;
+
+
+                amp2.value =
+                    0;
+
+
+                amp3.value =
+                    0;
+
+
+                controlChanged();
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "secondPreset"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+
+                amp1.value =
+                    1;
+
+
+                amp2.value =
+                    0.5;
+
+
+                amp3.value =
+                    0;
+
+
+                controlChanged();
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "thirdPreset"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+
+                amp1.value =
+                    1;
+
+
+                amp2.value =
+                    0.5;
+
+
+                amp3.value =
+                    0.3;
+
+
+                controlChanged();
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "equalPreset"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+
+                amp1.value =
+                    1;
+
+
+                amp2.value =
+                    1;
+
+
+                amp3.value =
+                    1;
+
+
+                controlChanged();
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "resetButton"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+
+                frequencySlider.value =
+                    440;
+
+
+                amp1.value =
+                    1;
+
+
+                amp2.value =
+                    0;
+
+
+                amp3.value =
+                    0;
+
+
+                controlChanged();
+
+            }
+        );
+
+
+    // ========================================================
+    // RESIZE
+    // ========================================================
+
+    window.addEventListener(
+        "resize",
+        resizeCanvases
+    );
+
+
+    const timeObserver =
+        new ResizeObserver(
+            resizeCanvases
+        );
+
+
+    const frequencyObserver =
+        new ResizeObserver(
+            resizeCanvases
+        );
+
+
+    timeObserver.observe(
+        timeCanvas
+    );
+
+
+    frequencyObserver.observe(
+        frequencyCanvas
+    );
+
+
+    // ========================================================
+    // INITIAL DRAW
+    // ========================================================
+
+    requestAnimationFrame(
+        resizeCanvases
+    );
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>

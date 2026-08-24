@@ -1,0 +1,2938 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Live Sound and Fourier Transform</title>
+
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+        color: #222222;
+
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+
+    body {
+        overflow: hidden;
+    }
+
+
+    /* =====================================================
+       MAIN PAGE
+       ===================================================== */
+
+    .demo {
+
+        width: 100%;
+        height: 100vh;
+
+        padding:
+            clamp(10px, 1.2vw, 24px);
+
+        display: flex;
+        flex-direction: column;
+
+        gap:
+            clamp(5px, 0.7vh, 10px);
+    }
+
+
+    /* =====================================================
+       TITLE
+       ===================================================== */
+
+    h1 {
+
+        margin: 0;
+
+        text-align: center;
+
+        color: #0D47A1;
+
+        font-size:
+            clamp(22px, 2.1vw, 40px);
+
+        line-height: 1.1;
+    }
+
+
+    .subtitle {
+
+        margin: 0;
+
+        text-align: center;
+
+        color: #555555;
+
+        font-size:
+            clamp(11px, 1vw, 18px);
+    }
+
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
+
+    .status-row {
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+
+        flex-wrap: wrap;
+
+        gap:
+            clamp(10px, 2vw, 35px);
+
+        min-height: 24px;
+    }
+
+
+    .status {
+
+        color: #555555;
+
+        font-size:
+            clamp(11px, 0.9vw, 16px);
+    }
+
+
+    .frequency-readout {
+
+        color: #1565C0;
+
+        font-weight: bold;
+
+        font-size:
+            clamp(13px, 1.2vw, 21px);
+    }
+
+
+    /* =====================================================
+       PLOTS
+       ===================================================== */
+
+    .plots {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap:
+            clamp(10px, 1.2vw, 24px);
+
+        flex: 1;
+
+        min-height: 0;
+    }
+
+
+    .plot {
+
+        display: flex;
+        flex-direction: column;
+
+        min-width: 0;
+        min-height: 0;
+    }
+
+
+    .plot-title {
+
+        text-align: center;
+
+        color: #0D47A1;
+
+        font-weight: bold;
+
+        font-size:
+            clamp(14px, 1.3vw, 22px);
+
+        margin-bottom:
+            clamp(2px, 0.3vh, 5px);
+    }
+
+
+    .canvas-container {
+
+        flex: 1;
+
+        min-height: 0;
+    }
+
+
+    canvas {
+
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        border: 1px solid #CCD5DE;
+
+        border-radius:
+            clamp(5px, 0.5vw, 10px);
+    }
+
+
+    .axis-description {
+
+        text-align: center;
+
+        color: #666666;
+
+        margin-top: 3px;
+
+        font-size:
+            clamp(10px, 0.75vw, 14px);
+    }
+
+
+    /* =====================================================
+       CONTROLS
+       ===================================================== */
+
+    .controls {
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+
+        flex-wrap: wrap;
+
+        gap:
+            clamp(5px, 0.7vw, 12px);
+
+        padding-top: 3px;
+    }
+
+
+    button,
+    select {
+
+        font-family: inherit;
+
+        font-size:
+            clamp(11px, 0.85vw, 15px);
+    }
+
+
+    button {
+
+        padding:
+            clamp(6px, 0.5vw, 10px)
+            clamp(10px, 0.9vw, 18px);
+
+        border: 1px solid #B7C7D6;
+
+        border-radius:
+            clamp(4px, 0.35vw, 7px);
+
+        background: #F5F8FB;
+
+        cursor: pointer;
+    }
+
+
+    button:hover {
+
+        background: #E3F2FD;
+
+        border-color: #1565C0;
+    }
+
+
+    button:disabled {
+
+        opacity: 0.45;
+
+        cursor: default;
+    }
+
+
+    #startButton {
+
+        border: none;
+
+        background: #1565C0;
+
+        color: white;
+    }
+
+
+    #startButton:hover {
+        background: #0D47A1;
+    }
+
+
+    #stopButton {
+
+        border: none;
+
+        background: #C62828;
+
+        color: white;
+    }
+
+
+    .control-group {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 5px;
+    }
+
+
+    .control-label {
+
+        color: #555555;
+
+        font-size:
+            clamp(10px, 0.8vw, 14px);
+    }
+
+
+    select {
+
+        padding: 5px 8px;
+
+        border: 1px solid #B7C7D6;
+
+        border-radius: 5px;
+
+        background: white;
+    }
+
+
+    /* =====================================================
+       SMALL SCREENS
+       ===================================================== */
+
+    @media (max-width: 800px) {
+
+        body {
+            overflow: auto;
+        }
+
+
+        .demo {
+
+            height: auto;
+            min-height: 100vh;
+        }
+
+
+        .plots {
+
+            grid-template-columns: 1fr;
+
+            height: 700px;
+
+            flex: none;
+        }
+
+    }
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="demo">
+
+
+    <h1>
+        Live Sound and Fourier Transform
+    </h1>
+
+
+    <div class="subtitle">
+        The same sound viewed in the time and frequency domains
+    </div>
+
+
+
+    <!-- ===================================================
+         STATUS
+         =================================================== -->
+
+    <div class="status-row">
+
+        <span
+            id="status"
+            class="status"
+        >
+            Microphone stopped
+        </span>
+
+
+        <span
+            id="sampleRate"
+            class="status"
+        >
+            Sample rate: —
+        </span>
+
+
+        <span
+            id="dominantFrequency"
+            class="frequency-readout"
+        >
+            Dominant frequency: —
+        </span>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         PLOTS
+         =================================================== -->
+
+    <div class="plots">
+
+
+        <!-- TIME DOMAIN -->
+
+        <div class="plot">
+
+            <div class="plot-title">
+                Time Domain
+            </div>
+
+
+            <div class="canvas-container">
+
+                <canvas id="timeCanvas">
+                </canvas>
+
+            </div>
+
+
+            <div class="axis-description">
+                Waveform — amplitude changing with time
+            </div>
+
+        </div>
+
+
+
+        <!-- FREQUENCY DOMAIN -->
+
+        <div class="plot">
+
+            <div class="plot-title">
+                Frequency Domain — Fourier Transform
+            </div>
+
+
+            <div class="canvas-container">
+
+                <canvas id="frequencyCanvas">
+                </canvas>
+
+            </div>
+
+
+            <div class="axis-description">
+                Strong spectral components shown as stems
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ===================================================
+         CONTROLS
+         =================================================== -->
+
+    <div class="controls">
+
+
+        <button
+            id="startButton"
+            type="button"
+        >
+            Start microphone
+        </button>
+
+
+        <button
+            id="stopButton"
+            type="button"
+            disabled
+        >
+            Stop microphone
+        </button>
+
+
+        <button
+            id="freezeButton"
+            type="button"
+            disabled
+        >
+            Freeze
+        </button>
+
+
+
+        <div class="control-group">
+
+            <span class="control-label">
+                Time window:
+            </span>
+
+
+            <select id="timeWindow">
+
+                <option value="0.020">
+                    20 ms
+                </option>
+
+                <option
+                    value="0.050"
+                    selected
+                >
+                    50 ms
+                </option>
+
+                <option value="0.100">
+                    100 ms
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <div class="control-group">
+
+            <span class="control-label">
+                Frequency range:
+            </span>
+
+
+            <select id="frequencyRange">
+
+                <option value="2000">
+                    0–2000 Hz
+                </option>
+
+                <option
+                    value="5000"
+                    selected
+                >
+                    0–5000 Hz
+                </option>
+
+                <option value="10000">
+                    0–10000 Hz
+                </option>
+
+            </select>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+(function () {
+
+
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const timeCanvas =
+        document.getElementById(
+            "timeCanvas"
+        );
+
+
+    const timeCtx =
+        timeCanvas.getContext(
+            "2d"
+        );
+
+
+    const frequencyCanvas =
+        document.getElementById(
+            "frequencyCanvas"
+        );
+
+
+    const frequencyCtx =
+        frequencyCanvas.getContext(
+            "2d"
+        );
+
+
+    const startButton =
+        document.getElementById(
+            "startButton"
+        );
+
+
+    const stopButton =
+        document.getElementById(
+            "stopButton"
+        );
+
+
+    const freezeButton =
+        document.getElementById(
+            "freezeButton"
+        );
+
+
+    const statusText =
+        document.getElementById(
+            "status"
+        );
+
+
+    const sampleRateText =
+        document.getElementById(
+            "sampleRate"
+        );
+
+
+    const dominantFrequencyText =
+        document.getElementById(
+            "dominantFrequency"
+        );
+
+
+    const timeWindowSelect =
+        document.getElementById(
+            "timeWindow"
+        );
+
+
+    const frequencyRangeSelect =
+        document.getElementById(
+            "frequencyRange"
+        );
+
+
+
+    // =====================================================
+    // AUDIO STATE
+    // =====================================================
+
+    let audioContext =
+        null;
+
+
+    let mediaStream =
+        null;
+
+
+    let source =
+        null;
+
+
+    let analyser =
+        null;
+
+
+    let animationFrame =
+        null;
+
+
+    let running =
+        false;
+
+
+    let frozen =
+        false;
+
+
+
+    // =====================================================
+    // FFT SETTINGS
+    // =====================================================
+
+    const FFT_SIZE =
+        8192;
+
+
+    let timeData =
+        new Float32Array(
+            FFT_SIZE
+        );
+
+
+    let frequencyData =
+        new Float32Array(
+            FFT_SIZE / 2
+        );
+
+
+    let frozenTimeData =
+        null;
+
+
+    let frozenFrequencyData =
+        null;
+
+
+
+    // =====================================================
+    // DISPLAY / NOISE SETTINGS
+    // =====================================================
+
+    /*
+        Only a limited number of strong spectral peaks
+        are displayed.
+    */
+
+    const MAX_STEMS =
+        15;
+
+
+    /*
+        Prevent nearby FFT bins from appearing as
+        separate frequency components.
+    */
+
+    const MIN_PEAK_SPACING_HZ =
+        30;
+
+
+    /*
+        Ignore very-low-frequency handling noise.
+    */
+
+    const MINIMUM_FREQUENCY =
+        60;
+
+
+
+    // =====================================================
+    // CANVAS RESIZE
+    // =====================================================
+
+    function resizeCanvas(
+        canvas,
+        context
+    ) {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        if (
+            rect.width <= 0
+            ||
+            rect.height <= 0
+        ) {
+
+            return;
+        }
+
+
+        const dpr =
+            window.devicePixelRatio
+            || 1;
+
+
+        canvas.width =
+            Math.round(
+                rect.width * dpr
+            );
+
+
+        canvas.height =
+            Math.round(
+                rect.height * dpr
+            );
+
+
+        context.setTransform(
+
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+
+        );
+
+    }
+
+
+
+    function resizeCanvases() {
+
+
+        resizeCanvas(
+            timeCanvas,
+            timeCtx
+        );
+
+
+        resizeCanvas(
+            frequencyCanvas,
+            frequencyCtx
+        );
+
+
+        draw();
+
+    }
+
+
+
+    // =====================================================
+    // START MICROPHONE
+    // =====================================================
+
+    async function startMicrophone() {
+
+
+        try {
+
+
+            mediaStream =
+                await navigator.mediaDevices
+                    .getUserMedia({
+
+                        audio: {
+
+                            channelCount: 1,
+
+                            /*
+                                Keep browser processing disabled
+                                so the harmonic structure of musical
+                                instruments is not deliberately altered.
+                            */
+
+                            echoCancellation: false,
+
+                            noiseSuppression: false,
+
+                            autoGainControl: false
+
+                        },
+
+                        video: false
+
+                    });
+
+
+
+            audioContext =
+                new (
+                    window.AudioContext
+                    ||
+                    window.webkitAudioContext
+                )();
+
+
+
+            if (
+                audioContext.state
+                === "suspended"
+            ) {
+
+                await audioContext.resume();
+            }
+
+
+
+            source =
+                audioContext
+                    .createMediaStreamSource(
+                        mediaStream
+                    );
+
+
+
+            analyser =
+                audioContext
+                    .createAnalyser();
+
+
+
+            analyser.fftSize =
+                FFT_SIZE;
+
+
+
+            /*
+                Higher smoothing gives a cleaner and
+                steadier live Fourier display.
+            */
+
+            analyser.smoothingTimeConstant =
+                0.65;
+
+
+
+            analyser.minDecibels =
+                -110;
+
+
+            analyser.maxDecibels =
+                -10;
+
+
+
+            source.connect(
+                analyser
+            );
+
+
+            /*
+                Do not connect the microphone to the
+                loudspeakers. This prevents feedback.
+            */
+
+
+
+            timeData =
+                new Float32Array(
+                    analyser.fftSize
+                );
+
+
+            frequencyData =
+                new Float32Array(
+                    analyser.frequencyBinCount
+                );
+
+
+
+            running =
+                true;
+
+
+            frozen =
+                false;
+
+
+
+            startButton.disabled =
+                true;
+
+
+            stopButton.disabled =
+                false;
+
+
+            freezeButton.disabled =
+                false;
+
+
+
+            freezeButton.textContent =
+                "Freeze";
+
+
+            statusText.textContent =
+                "Microphone live";
+
+
+            sampleRateText.textContent =
+
+                "Sample rate: "
+                + audioContext.sampleRate
+                + " Hz";
+
+
+            animate();
+
+
+        } catch (error) {
+
+
+            console.error(
+                error
+            );
+
+
+            statusText.textContent =
+                "Microphone access failed";
+
+
+            alert(
+
+                "Microphone access was not available. "
+                +
+                "Run the presentation through localhost "
+                +
+                "or Live Server and allow microphone access."
+
+            );
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // STOP MICROPHONE
+    // =====================================================
+
+    function stopMicrophone() {
+
+
+        running =
+            false;
+
+
+        frozen =
+            false;
+
+
+
+        if (
+            animationFrame
+        ) {
+
+
+            cancelAnimationFrame(
+                animationFrame
+            );
+
+
+            animationFrame =
+                null;
+
+        }
+
+
+
+        if (
+            mediaStream
+        ) {
+
+
+            mediaStream
+                .getTracks()
+                .forEach(
+                    function (track) {
+
+                        track.stop();
+
+                    }
+                );
+
+
+            mediaStream =
+                null;
+
+        }
+
+
+
+        if (
+            source
+        ) {
+
+
+            source.disconnect();
+
+
+            source =
+                null;
+
+        }
+
+
+
+        analyser =
+            null;
+
+
+
+        if (
+            audioContext
+        ) {
+
+
+            audioContext.close();
+
+
+            audioContext =
+                null;
+
+        }
+
+
+
+        startButton.disabled =
+            false;
+
+
+        stopButton.disabled =
+            true;
+
+
+        freezeButton.disabled =
+            true;
+
+
+
+        freezeButton.textContent =
+            "Freeze";
+
+
+        statusText.textContent =
+            "Microphone stopped";
+
+
+        sampleRateText.textContent =
+            "Sample rate: —";
+
+
+        dominantFrequencyText.textContent =
+            "Dominant frequency: —";
+
+    }
+
+
+
+    // =====================================================
+    // FREEZE
+    // =====================================================
+
+    function toggleFreeze() {
+
+
+        if (
+            !running
+        ) {
+
+            return;
+        }
+
+
+
+        frozen =
+            !frozen;
+
+
+
+        if (
+            frozen
+        ) {
+
+
+            frozenTimeData =
+                new Float32Array(
+                    timeData
+                );
+
+
+            frozenFrequencyData =
+                new Float32Array(
+                    frequencyData
+                );
+
+
+            freezeButton.textContent =
+                "Return to live";
+
+
+            statusText.textContent =
+                "Display frozen";
+
+
+        } else {
+
+
+            freezeButton.textContent =
+                "Freeze";
+
+
+            statusText.textContent =
+                "Microphone live";
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // ANIMATION
+    // =====================================================
+
+    function animate() {
+
+
+        if (
+            !running
+        ) {
+
+            return;
+        }
+
+
+
+        if (
+            !frozen
+            &&
+            analyser
+        ) {
+
+
+            analyser.getFloatTimeDomainData(
+                timeData
+            );
+
+
+            analyser.getFloatFrequencyData(
+                frequencyData
+            );
+
+        }
+
+
+
+        draw();
+
+
+
+        animationFrame =
+            requestAnimationFrame(
+                animate
+            );
+
+    }
+
+
+
+    // =====================================================
+    // DRAW
+    // =====================================================
+
+    function draw() {
+
+
+        const currentTimeData =
+
+            frozen
+            &&
+            frozenTimeData
+
+                ? frozenTimeData
+
+                : timeData;
+
+
+
+        const currentFrequencyData =
+
+            frozen
+            &&
+            frozenFrequencyData
+
+                ? frozenFrequencyData
+
+                : frequencyData;
+
+
+
+        drawTimeDomain(
+            currentTimeData
+        );
+
+
+        drawFrequencyDomain(
+            currentFrequencyData
+        );
+
+    }
+
+
+
+    // =====================================================
+    // TIME DOMAIN
+    // =====================================================
+
+    function drawTimeDomain(
+        data
+    ) {
+
+
+        const rect =
+            timeCanvas
+                .getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+        }
+
+
+
+        const left =
+            55;
+
+
+        const right =
+            16;
+
+
+        const top =
+            15;
+
+
+        const bottom =
+            42;
+
+
+
+        const graphWidth =
+
+            width
+            - left
+            - right;
+
+
+
+        const graphHeight =
+
+            height
+            - top
+            - bottom;
+
+
+
+        const centreY =
+
+            top
+            + graphHeight / 2;
+
+
+
+        // =================================================
+        // BACKGROUND
+        // =================================================
+
+        timeCtx.fillStyle =
+            "#FFFFFF";
+
+
+        timeCtx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+
+        // =================================================
+        // GRID
+        // =================================================
+
+        timeCtx.strokeStyle =
+            "#E4E8EC";
+
+
+        timeCtx.lineWidth =
+            1;
+
+
+
+        for (
+            let i = 0;
+            i <= 10;
+            i++
+        ) {
+
+
+            const x =
+
+                left
+
+                + graphWidth
+                * i
+                / 10;
+
+
+
+            timeCtx.beginPath();
+
+
+            timeCtx.moveTo(
+                x,
+                top
+            );
+
+
+            timeCtx.lineTo(
+                x,
+                top + graphHeight
+            );
+
+
+            timeCtx.stroke();
+
+        }
+
+
+
+        for (
+            let i = 0;
+            i <= 4;
+            i++
+        ) {
+
+
+            const y =
+
+                top
+
+                + graphHeight
+                * i
+                / 4;
+
+
+
+            timeCtx.beginPath();
+
+
+            timeCtx.moveTo(
+                left,
+                y
+            );
+
+
+            timeCtx.lineTo(
+                left + graphWidth,
+                y
+            );
+
+
+            timeCtx.stroke();
+
+        }
+
+
+
+        // =================================================
+        // ZERO AXIS
+        // =================================================
+
+        timeCtx.strokeStyle =
+            "#777777";
+
+
+        timeCtx.lineWidth =
+            1.2;
+
+
+        timeCtx.beginPath();
+
+
+        timeCtx.moveTo(
+            left,
+            centreY
+        );
+
+
+        timeCtx.lineTo(
+            left + graphWidth,
+            centreY
+        );
+
+
+        timeCtx.stroke();
+
+
+
+        // =================================================
+        // SAMPLE RATE AND WINDOW
+        // =================================================
+
+        const sampleRate =
+
+            audioContext
+
+                ? audioContext.sampleRate
+
+                : 48000;
+
+
+
+        const timeWindow =
+
+            parseFloat(
+                timeWindowSelect.value
+            );
+
+
+
+        let samplesToShow =
+
+            Math.round(
+
+                sampleRate
+                * timeWindow
+
+            );
+
+
+
+        samplesToShow =
+
+            Math.min(
+                samplesToShow,
+                data.length
+            );
+
+
+
+        const startIndex =
+
+            Math.max(
+
+                0,
+
+                data.length
+                - samplesToShow
+
+            );
+
+
+
+        // =================================================
+        // AUTO AMPLITUDE SCALE
+        // =================================================
+
+        let peak =
+            0;
+
+
+
+        for (
+            let i = startIndex;
+            i < data.length;
+            i++
+        ) {
+
+
+            peak =
+                Math.max(
+
+                    peak,
+
+                    Math.abs(
+                        data[i]
+                    )
+
+                );
+
+        }
+
+
+
+        /*
+            Minimum scale of 0.10 prevents very small
+            background noise from being visually magnified.
+        */
+
+        const displayScale =
+
+            Math.max(
+                0.10,
+                peak * 1.25
+            );
+
+
+
+        // =================================================
+        // WAVEFORM
+        // =================================================
+
+        timeCtx.strokeStyle =
+            "#1565C0";
+
+
+        timeCtx.lineWidth =
+            2.2;
+
+
+        timeCtx.beginPath();
+
+
+
+        for (
+            let px = 0;
+            px <= graphWidth;
+            px++
+        ) {
+
+
+            const proportion =
+
+                px
+                / graphWidth;
+
+
+
+            const index =
+
+                startIndex
+
+                + Math.floor(
+
+                    proportion
+
+                    * (
+                        samplesToShow - 1
+                    )
+
+                );
+
+
+
+            const sample =
+                data[index]
+                || 0;
+
+
+
+            const x =
+                left + px;
+
+
+
+            const y =
+
+                centreY
+
+                -
+                (
+                    sample
+                    / displayScale
+                )
+
+                * graphHeight
+                / 2;
+
+
+
+            if (
+                px === 0
+            ) {
+
+
+                timeCtx.moveTo(
+                    x,
+                    y
+                );
+
+
+            } else {
+
+
+                timeCtx.lineTo(
+                    x,
+                    y
+                );
+
+            }
+
+        }
+
+
+
+        timeCtx.stroke();
+
+
+
+        // =================================================
+        // TIME LABELS
+        // =================================================
+
+        timeCtx.fillStyle =
+            "#555555";
+
+
+        timeCtx.font =
+            "11px Arial";
+
+
+        timeCtx.textAlign =
+            "center";
+
+
+
+        const milliseconds =
+
+            timeWindow
+            * 1000;
+
+
+
+        for (
+            let i = 0;
+            i <= 5;
+            i++
+        ) {
+
+
+            const x =
+
+                left
+
+                + graphWidth
+                * i
+                / 5;
+
+
+
+            const value =
+
+                milliseconds
+                * i
+                / 5;
+
+
+
+            timeCtx.fillText(
+
+                value.toFixed(0),
+
+                x,
+
+                top
+                + graphHeight
+                + 17
+
+            );
+
+        }
+
+
+
+        // =================================================
+        // AXIS TITLES
+        // =================================================
+
+        timeCtx.fillStyle =
+            "#333333";
+
+
+        timeCtx.font =
+            "12px Arial";
+
+
+        timeCtx.fillText(
+
+            "Time (ms)",
+
+            left
+            + graphWidth / 2,
+
+            height - 5
+
+        );
+
+
+
+        timeCtx.save();
+
+
+        timeCtx.translate(
+            14,
+            centreY
+        );
+
+
+        timeCtx.rotate(
+            -Math.PI / 2
+        );
+
+
+        timeCtx.fillText(
+            "Amplitude",
+            0,
+            0
+        );
+
+
+        timeCtx.restore();
+
+    }
+
+
+
+    // =====================================================
+    // FREQUENCY DOMAIN
+    // =====================================================
+
+    function drawFrequencyDomain(
+        data
+    ) {
+
+
+        const rect =
+            frequencyCanvas
+                .getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+        }
+
+
+
+        const left =
+            58;
+
+
+        const right =
+            18;
+
+
+        const top =
+            15;
+
+
+        const bottom =
+            48;
+
+
+
+        const graphWidth =
+
+            width
+            - left
+            - right;
+
+
+
+        const graphHeight =
+
+            height
+            - top
+            - bottom;
+
+
+
+        const baseline =
+
+            top
+            + graphHeight;
+
+
+
+        // =================================================
+        // FREQUENCY SETTINGS
+        // =================================================
+
+        const maxFrequency =
+
+            parseFloat(
+                frequencyRangeSelect.value
+            );
+
+
+
+        const sampleRate =
+
+            audioContext
+
+                ? audioContext.sampleRate
+
+                : 48000;
+
+
+
+        const binWidth =
+
+            sampleRate
+            / FFT_SIZE;
+
+
+
+        const maximumBin =
+
+            Math.min(
+
+                data.length - 1,
+
+                Math.floor(
+
+                    maxFrequency
+                    / binWidth
+
+                )
+
+            );
+
+
+
+        const minimumBin =
+
+            Math.ceil(
+
+                MINIMUM_FREQUENCY
+                / binWidth
+
+            );
+
+
+
+        // =================================================
+        // dB RANGE
+        // =================================================
+
+        const minDb =
+            -100;
+
+
+        const maxDb =
+            -20;
+
+
+
+        // =================================================
+        // BACKGROUND
+        // =================================================
+
+        frequencyCtx.fillStyle =
+            "#FFFFFF";
+
+
+        frequencyCtx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+
+        // =================================================
+        // FREQUENCY GRID
+        // =================================================
+
+        frequencyCtx.strokeStyle =
+            "#E4E8EC";
+
+
+        frequencyCtx.lineWidth =
+            1;
+
+
+
+        const numberOfTicks =
+            5;
+
+
+
+        for (
+            let i = 0;
+            i <= numberOfTicks;
+            i++
+        ) {
+
+
+            const x =
+
+                left
+
+                + graphWidth
+                * i
+                / numberOfTicks;
+
+
+
+            frequencyCtx.beginPath();
+
+
+            frequencyCtx.moveTo(
+                x,
+                top
+            );
+
+
+            frequencyCtx.lineTo(
+                x,
+                baseline
+            );
+
+
+            frequencyCtx.stroke();
+
+        }
+
+
+
+        // =================================================
+        // dB GRID
+        // =================================================
+
+        const dbTicks = [
+
+            -20,
+            -40,
+            -60,
+            -80,
+            -100
+
+        ];
+
+
+
+        dbTicks.forEach(
+            function (db) {
+
+
+                const proportion =
+
+                    (
+                        db
+                        - minDb
+                    )
+
+                    /
+                    (
+                        maxDb
+                        - minDb
+                    );
+
+
+
+                const y =
+
+                    baseline
+
+                    - proportion
+                    * graphHeight;
+
+
+
+                frequencyCtx.beginPath();
+
+
+                frequencyCtx.moveTo(
+                    left,
+                    y
+                );
+
+
+                frequencyCtx.lineTo(
+                    left + graphWidth,
+                    y
+                );
+
+
+                frequencyCtx.stroke();
+
+            }
+        );
+
+
+
+        // =================================================
+        // AXES
+        // =================================================
+
+        frequencyCtx.strokeStyle =
+            "#777777";
+
+
+        frequencyCtx.lineWidth =
+            1.2;
+
+
+        frequencyCtx.beginPath();
+
+
+        frequencyCtx.moveTo(
+            left,
+            top
+        );
+
+
+        frequencyCtx.lineTo(
+            left,
+            baseline
+        );
+
+
+        frequencyCtx.lineTo(
+            left + graphWidth,
+            baseline
+        );
+
+
+        frequencyCtx.stroke();
+
+
+
+        // =================================================
+        // FIND STRONGEST COMPONENT
+        // =================================================
+
+        let strongestDb =
+            -Infinity;
+
+
+        let strongestBin =
+            0;
+
+
+
+        for (
+            let bin = minimumBin;
+            bin <= maximumBin;
+            bin++
+        ) {
+
+
+            const db =
+                data[bin];
+
+
+
+            if (
+                Number.isFinite(db)
+                &&
+                db > strongestDb
+            ) {
+
+
+                strongestDb =
+                    db;
+
+
+                strongestBin =
+                    bin;
+
+            }
+
+        }
+
+
+
+        // =================================================
+        // NOISE-REDUCED PEAK THRESHOLD
+        // =================================================
+
+        /*
+            A component must be:
+
+            1. stronger than -75 dB, AND
+            2. no more than 20 dB below the strongest peak.
+
+            This suppresses most low-level background peaks.
+        */
+
+        const peakThreshold =
+
+            Math.max(
+
+                -75,
+
+                strongestDb - 20
+
+            );
+
+
+
+        // =================================================
+        // FIND LOCAL PEAKS
+        // =================================================
+
+        let candidatePeaks =
+            [];
+
+
+
+        for (
+            let bin = minimumBin + 1;
+            bin < maximumBin - 1;
+            bin++
+        ) {
+
+
+            const previous =
+                data[bin - 1];
+
+
+            const current =
+                data[bin];
+
+
+            const next =
+                data[bin + 1];
+
+
+
+            if (
+                Number.isFinite(current)
+
+                &&
+                current >= peakThreshold
+
+                &&
+                current > previous
+
+                &&
+                current >= next
+            ) {
+
+
+                candidatePeaks.push({
+
+                    bin: bin,
+
+                    frequency:
+                        bin
+                        * binWidth,
+
+                    db: current
+
+                });
+
+            }
+
+        }
+
+
+
+        // =================================================
+        // SORT BY STRENGTH
+        // =================================================
+
+        candidatePeaks.sort(
+            function (a, b) {
+
+                return b.db
+                    - a.db;
+
+            }
+        );
+
+
+
+        // =================================================
+        // REMOVE PEAKS THAT ARE TOO CLOSE TOGETHER
+        // =================================================
+
+        let peaks =
+            [];
+
+
+
+        for (
+            const peak
+            of candidatePeaks
+        ) {
+
+
+            const tooClose =
+
+                peaks.some(
+                    function (
+                        existingPeak
+                    ) {
+
+
+                        return Math.abs(
+
+                            existingPeak.frequency
+
+                            - peak.frequency
+
+                        )
+                        <
+                        MIN_PEAK_SPACING_HZ;
+
+                    }
+                );
+
+
+
+            if (
+                !tooClose
+            ) {
+
+
+                peaks.push(
+                    peak
+                );
+
+            }
+
+
+
+            if (
+                peaks.length
+                >= MAX_STEMS
+            ) {
+
+                break;
+            }
+
+        }
+
+
+
+        // =================================================
+        // SORT BACK INTO FREQUENCY ORDER
+        // =================================================
+
+        peaks.sort(
+            function (a, b) {
+
+                return a.frequency
+                    - b.frequency;
+
+            }
+        );
+
+
+
+        // =================================================
+        // DRAW STEMS
+        // =================================================
+
+        peaks.forEach(
+            function (peak) {
+
+
+                const db =
+
+                    Math.max(
+
+                        minDb,
+
+                        Math.min(
+                            maxDb,
+                            peak.db
+                        )
+
+                    );
+
+
+
+                const x =
+
+                    left
+
+                    +
+                    (
+                        peak.frequency
+                        / maxFrequency
+                    )
+
+                    * graphWidth;
+
+
+
+                const proportion =
+
+                    (
+                        db
+                        - minDb
+                    )
+
+                    /
+                    (
+                        maxDb
+                        - minDb
+                    );
+
+
+
+                const y =
+
+                    baseline
+
+                    - proportion
+                    * graphHeight;
+
+
+
+                // -----------------------------------------
+                // STEM
+                // -----------------------------------------
+
+                frequencyCtx.strokeStyle =
+                    "#1565C0";
+
+
+                frequencyCtx.lineWidth =
+                    2.5;
+
+
+                frequencyCtx.beginPath();
+
+
+                frequencyCtx.moveTo(
+                    x,
+                    baseline
+                );
+
+
+                frequencyCtx.lineTo(
+                    x,
+                    y
+                );
+
+
+                frequencyCtx.stroke();
+
+
+
+                // -----------------------------------------
+                // DOT
+                // -----------------------------------------
+
+                frequencyCtx.fillStyle =
+                    "#1565C0";
+
+
+                frequencyCtx.beginPath();
+
+
+                frequencyCtx.arc(
+
+                    x,
+                    y,
+
+                    3.5,
+
+                    0,
+                    2 * Math.PI
+
+                );
+
+
+                frequencyCtx.fill();
+
+            }
+        );
+
+
+
+        // =================================================
+        // DOMINANT FREQUENCY
+        // =================================================
+
+        const dominantFrequency =
+
+            strongestBin
+            * binWidth;
+
+
+
+        if (
+            running
+            &&
+            strongestDb > -75
+        ) {
+
+
+            dominantFrequencyText.textContent =
+
+                "Dominant frequency: "
+                + dominantFrequency
+                    .toFixed(1)
+                + " Hz";
+
+
+        } else if (
+            running
+        ) {
+
+
+            dominantFrequencyText.textContent =
+                "Dominant frequency: —";
+
+        }
+
+
+
+        // =================================================
+        // HIGHLIGHT DOMINANT STEM
+        // =================================================
+
+        if (
+            running
+
+            &&
+            strongestDb > -75
+
+            &&
+            dominantFrequency
+            <= maxFrequency
+        ) {
+
+
+            const x =
+
+                left
+
+                +
+                (
+                    dominantFrequency
+                    / maxFrequency
+                )
+
+                * graphWidth;
+
+
+
+            const db =
+
+                Math.max(
+
+                    minDb,
+
+                    Math.min(
+                        maxDb,
+                        strongestDb
+                    )
+
+                );
+
+
+
+            const proportion =
+
+                (
+                    db
+                    - minDb
+                )
+
+                /
+                (
+                    maxDb
+                    - minDb
+                );
+
+
+
+            const y =
+
+                baseline
+
+                - proportion
+                * graphHeight;
+
+
+
+            frequencyCtx.strokeStyle =
+                "#C62828";
+
+
+            frequencyCtx.lineWidth =
+                4;
+
+
+            frequencyCtx.beginPath();
+
+
+            frequencyCtx.moveTo(
+                x,
+                baseline
+            );
+
+
+            frequencyCtx.lineTo(
+                x,
+                y
+            );
+
+
+            frequencyCtx.stroke();
+
+
+
+            frequencyCtx.fillStyle =
+                "#C62828";
+
+
+            frequencyCtx.beginPath();
+
+
+            frequencyCtx.arc(
+
+                x,
+                y,
+
+                5,
+
+                0,
+                2 * Math.PI
+
+            );
+
+
+            frequencyCtx.fill();
+
+
+
+            frequencyCtx.font =
+                "bold 11px Arial";
+
+
+            frequencyCtx.textAlign =
+                "center";
+
+
+            frequencyCtx.fillText(
+
+                dominantFrequency
+                    .toFixed(0)
+                + " Hz",
+
+                x,
+
+                Math.max(
+                    top + 12,
+                    y - 8
+                )
+
+            );
+
+        }
+
+
+
+        // =================================================
+        // FREQUENCY AXIS
+        // =================================================
+
+        frequencyCtx.fillStyle =
+            "#555555";
+
+
+        frequencyCtx.font =
+            "11px Arial";
+
+
+        frequencyCtx.textAlign =
+            "center";
+
+
+
+        for (
+            let i = 0;
+            i <= numberOfTicks;
+            i++
+        ) {
+
+
+            const frequency =
+
+                maxFrequency
+
+                * i
+                / numberOfTicks;
+
+
+
+            const x =
+
+                left
+
+                + graphWidth
+                * i
+                / numberOfTicks;
+
+
+
+            frequencyCtx.fillText(
+
+                Math.round(
+                    frequency
+                ),
+
+                x,
+
+                baseline + 18
+
+            );
+
+        }
+
+
+
+        // =================================================
+        // dB AXIS
+        // =================================================
+
+        frequencyCtx.textAlign =
+            "right";
+
+
+
+        dbTicks.forEach(
+            function (db) {
+
+
+                const proportion =
+
+                    (
+                        db
+                        - minDb
+                    )
+
+                    /
+                    (
+                        maxDb
+                        - minDb
+                    );
+
+
+
+                const y =
+
+                    baseline
+
+                    - proportion
+                    * graphHeight;
+
+
+
+                frequencyCtx.fillText(
+
+                    db.toString(),
+
+                    left - 5,
+
+                    y + 4
+
+                );
+
+            }
+        );
+
+
+
+        // =================================================
+        // AXIS TITLES
+        // =================================================
+
+        frequencyCtx.fillStyle =
+            "#333333";
+
+
+        frequencyCtx.font =
+            "12px Arial";
+
+
+        frequencyCtx.textAlign =
+            "center";
+
+
+        frequencyCtx.fillText(
+
+            "Frequency (Hz)",
+
+            left
+            + graphWidth / 2,
+
+            height - 5
+
+        );
+
+
+
+        frequencyCtx.save();
+
+
+        frequencyCtx.translate(
+
+            14,
+
+            top
+            + graphHeight / 2
+
+        );
+
+
+        frequencyCtx.rotate(
+            -Math.PI / 2
+        );
+
+
+        frequencyCtx.fillText(
+
+            "Magnitude (dB)",
+
+            0,
+            0
+
+        );
+
+
+        frequencyCtx.restore();
+
+    }
+
+
+
+    // =====================================================
+    // EVENTS
+    // =====================================================
+
+    startButton.addEventListener(
+        "click",
+        startMicrophone
+    );
+
+
+    stopButton.addEventListener(
+        "click",
+        stopMicrophone
+    );
+
+
+    freezeButton.addEventListener(
+        "click",
+        toggleFreeze
+    );
+
+
+    timeWindowSelect.addEventListener(
+        "change",
+        draw
+    );
+
+
+    frequencyRangeSelect.addEventListener(
+        "change",
+        draw
+    );
+
+
+    window.addEventListener(
+        "resize",
+        resizeCanvases
+    );
+
+
+
+    // =====================================================
+    // RESIZE OBSERVERS
+    // =====================================================
+
+    const timeResizeObserver =
+        new ResizeObserver(
+            resizeCanvases
+        );
+
+
+    const frequencyResizeObserver =
+        new ResizeObserver(
+            resizeCanvases
+        );
+
+
+    timeResizeObserver.observe(
+        timeCanvas
+    );
+
+
+    frequencyResizeObserver.observe(
+        frequencyCanvas
+    );
+
+
+
+    // =====================================================
+    // INITIAL DRAW
+    // =====================================================
+
+    requestAnimationFrame(
+        resizeCanvases
+    );
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>

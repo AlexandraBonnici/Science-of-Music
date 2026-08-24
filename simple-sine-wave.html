@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Simple Sine Wave</title>
+
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        font-family: Arial, Helvetica, sans-serif;
+
+        color: #222222;
+    }
+
+
+    body {
+        overflow: hidden;
+    }
+
+
+    /* ========================================================
+       MAIN DEMO
+       ======================================================== */
+
+    .demo {
+
+        width: 100%;
+        height: 100vh;
+
+        padding: 18px 28px;
+
+        display: flex;
+        flex-direction: column;
+
+        background: white;
+    }
+
+
+    /* ========================================================
+       TITLE
+       ======================================================== */
+
+    h1 {
+
+        margin: 0 0 4px 0;
+
+        text-align: center;
+
+        color: #0D47A1;
+
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+
+    /* ========================================================
+       EQUATIONS
+       ======================================================== */
+
+    .general-equation {
+
+        text-align: center;
+
+        font-size: 26px;
+
+        margin: 2px 0;
+    }
+
+
+    .current-equation {
+
+        text-align: center;
+
+        color: #1565C0;
+
+        font-size: 21px;
+        font-weight: 600;
+
+        margin: 4px 0 10px 0;
+    }
+
+
+    /* ========================================================
+       GRAPH
+       ======================================================== */
+
+    .graph-container {
+
+        flex: 1;
+
+        min-height: 250px;
+
+        width: 100%;
+
+        position: relative;
+    }
+
+
+    #waveCanvas {
+
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        background: white;
+
+        border: 1px solid #D5DDE5;
+        border-radius: 8px;
+    }
+
+
+    /* ========================================================
+       LEGEND
+       ======================================================== */
+
+    .legend {
+
+        margin-top: 6px;
+
+        text-align: center;
+
+        color: #666666;
+
+        font-size: 12px;
+    }
+
+
+    .blue-key {
+
+        color: #1565C0;
+
+        font-weight: bold;
+    }
+
+
+    .grey-key {
+
+        color: #888888;
+
+        font-weight: bold;
+    }
+
+
+    /* ========================================================
+       AUDIO
+       ======================================================== */
+
+    .audio-controls {
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+
+        gap: 15px;
+
+        margin-top: 10px;
+        margin-bottom: 4px;
+    }
+
+
+    #playToneButton {
+
+        background-color: #1565C0;
+        color: white;
+
+        border: none;
+        border-radius: 8px;
+
+        padding: 10px 26px;
+
+        font-size: 15px;
+        font-weight: 600;
+
+        cursor: pointer;
+    }
+
+
+    #playToneButton:hover {
+
+        background-color: #0D47A1;
+    }
+
+
+    #playToneButton.playing {
+
+        background-color: #C62828;
+    }
+
+
+    .audio-note {
+
+        color: #666666;
+
+        font-size: 12px;
+    }
+
+
+    /* ========================================================
+       CONTROLS
+       ======================================================== */
+
+    .controls {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 16px;
+
+        margin-top: 10px;
+    }
+
+
+    .control-box {
+
+        border: 1px solid #D5DDE5;
+
+        border-radius: 8px;
+
+        padding: 12px 16px;
+
+        background: white;
+    }
+
+
+    .control-box h2 {
+
+        margin: 0 0 7px 0;
+
+        font-size: 18px;
+
+        color: #0D47A1;
+    }
+
+
+    .slider-row {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+    }
+
+
+    input[type="range"] {
+
+        flex: 1;
+
+        min-width: 0;
+    }
+
+
+    .value {
+
+        min-width: 80px;
+
+        text-align: right;
+
+        color: #1565C0;
+
+        font-weight: bold;
+    }
+
+
+    .description {
+
+        margin-top: 7px;
+
+        color: #666666;
+
+        font-size: 12px;
+
+        line-height: 1.3;
+    }
+
+
+    /* ========================================================
+       INFORMATION
+       ======================================================== */
+
+    .information {
+
+        display: flex;
+
+        justify-content: center;
+
+        flex-wrap: wrap;
+
+        gap: 30px;
+
+        margin-top: 10px;
+
+        font-size: 14px;
+    }
+
+
+    .information strong {
+
+        color: #0D47A1;
+    }
+
+
+    .information span {
+
+        color: #1565C0;
+
+        font-weight: 600;
+    }
+
+
+    /* ========================================================
+       SMALLER SCREENS
+       ======================================================== */
+
+    @media (max-width: 800px) {
+
+        body {
+            overflow: auto;
+        }
+
+
+        .demo {
+            height: auto;
+            min-height: 100vh;
+        }
+
+
+        .controls {
+
+            grid-template-columns: 1fr;
+        }
+
+
+        .graph-container {
+
+            height: 300px;
+            flex: none;
+        }
+
+    }
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="demo">
+
+
+    <!-- =====================================================
+         TITLE
+         ===================================================== -->
+
+    <h1>
+        The Simple Sine Wave
+    </h1>
+
+
+    <!-- =====================================================
+         GENERAL EQUATION
+         ===================================================== -->
+
+    <div class="general-equation">
+
+        y(t) = A sin(2πft + φ)
+
+    </div>
+
+
+    <!-- =====================================================
+         CURRENT EQUATION
+         ===================================================== -->
+
+    <div
+        id="currentEquation"
+        class="current-equation"
+    >
+
+        y(t) = 1.00 sin(2π(440)t + 0°)
+
+    </div>
+
+
+    <!-- =====================================================
+         GRAPH
+         ===================================================== -->
+
+    <div class="graph-container">
+
+        <canvas id="waveCanvas">
+        </canvas>
+
+    </div>
+
+
+    <!-- =====================================================
+         LEGEND
+         ===================================================== -->
+
+    <div class="legend">
+
+        <span class="blue-key">
+            Blue:
+        </span>
+
+        current signal
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+
+        <span class="grey-key">
+            Dashed grey:
+        </span>
+
+        zero-phase reference
+
+    </div>
+
+
+    <!-- =====================================================
+         AUDIO
+         ===================================================== -->
+
+    <div class="audio-controls">
+
+        <button
+            id="playToneButton"
+            type="button"
+        >
+
+            ▶ Play tone
+
+        </button>
+
+
+        <span class="audio-note">
+
+            The sound follows changes in amplitude and frequency.
+
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTROLS
+         ===================================================== -->
+
+    <div class="controls">
+
+
+        <!-- =================================================
+             AMPLITUDE
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                Amplitude
+            </h2>
+
+
+            <div class="slider-row">
+
+                <input
+                    id="amplitudeSlider"
+                    type="range"
+
+                    min="0"
+                    max="2"
+
+                    step="0.1"
+
+                    value="1"
+                >
+
+
+                <span
+                    id="amplitudeValue"
+                    class="value"
+                >
+
+                    1.00
+
+                </span>
+
+            </div>
+
+
+            <div class="description">
+
+                Controls the maximum displacement from equilibrium.
+                For sound, this changes the loudness.
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FREQUENCY
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                Frequency
+            </h2>
+
+
+            <div class="slider-row">
+
+                <input
+                    id="frequencySlider"
+                    type="range"
+
+                    min="100"
+                    max="1000"
+
+                    step="10"
+
+                    value="440"
+                >
+
+
+                <span
+                    id="frequencyValue"
+                    class="value"
+                >
+
+                    440 Hz
+
+                </span>
+
+            </div>
+
+
+            <div class="description">
+
+                Controls how many complete cycles occur every
+                second. For sound, this changes the pitch.
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PHASE
+             ================================================= -->
+
+        <div class="control-box">
+
+            <h2>
+                Phase
+            </h2>
+
+
+            <div class="slider-row">
+
+                <input
+                    id="phaseSlider"
+                    type="range"
+
+                    min="-180"
+                    max="180"
+
+                    step="1"
+
+                    value="0"
+                >
+
+
+                <span
+                    id="phaseValue"
+                    class="value"
+                >
+
+                    0°
+
+                </span>
+
+            </div>
+
+
+            <div class="description">
+
+                Moves the waveform horizontally relative
+                to the zero-phase reference.
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATION
+         ===================================================== -->
+
+    <div class="information">
+
+
+        <div>
+
+            <strong>
+                Amplitude:
+            </strong>
+
+            <span id="infoAmplitude">
+
+                1.00
+
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Frequency:
+            </strong>
+
+            <span id="infoFrequency">
+
+                440 Hz
+
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Period:
+            </strong>
+
+            <span id="infoPeriod">
+
+                2.27 ms
+
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Phase:
+            </strong>
+
+            <span id="infoPhase">
+
+                0°
+
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+(function () {
+
+
+    // ========================================================
+    // ELEMENTS
+    // ========================================================
+
+    const canvas =
+        document.getElementById(
+            "waveCanvas"
+        );
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    const amplitudeSlider =
+        document.getElementById(
+            "amplitudeSlider"
+        );
+
+
+    const frequencySlider =
+        document.getElementById(
+            "frequencySlider"
+        );
+
+
+    const phaseSlider =
+        document.getElementById(
+            "phaseSlider"
+        );
+
+
+    const playToneButton =
+        document.getElementById(
+            "playToneButton"
+        );
+
+
+    // ========================================================
+    // AUDIO STATE
+    // ========================================================
+
+    let audioContext = null;
+
+    let oscillator = null;
+
+    let gainNode = null;
+
+    let tonePlaying = false;
+
+
+    // ========================================================
+    // RESIZE CANVAS
+    // ========================================================
+
+    function resizeCanvas() {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        if (
+            rect.width <= 0
+            ||
+            rect.height <= 0
+        ) {
+
+            return;
+        }
+
+
+        const dpr =
+            window.devicePixelRatio || 1;
+
+
+        canvas.width =
+            Math.round(
+                rect.width * dpr
+            );
+
+
+        canvas.height =
+            Math.round(
+                rect.height * dpr
+            );
+
+
+        ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+
+        drawWave();
+
+    }
+
+
+    // ========================================================
+    // DRAW WAVEFORM
+    // ========================================================
+
+    function drawWave() {
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        const width =
+            rect.width;
+
+
+        const height =
+            rect.height;
+
+
+        if (
+            width <= 0
+            ||
+            height <= 0
+        ) {
+
+            return;
+        }
+
+
+        // ====================================================
+        // CURRENT PARAMETERS
+        // ====================================================
+
+        const A =
+            parseFloat(
+                amplitudeSlider.value
+            );
+
+
+        const f =
+            parseFloat(
+                frequencySlider.value
+            );
+
+
+        const phase =
+            parseFloat(
+                phaseSlider.value
+            );
+
+
+        const phaseRadians =
+            phase
+            * Math.PI
+            / 180;
+
+
+        // ====================================================
+        // GRAPH GEOMETRY
+        // ====================================================
+
+        const left = 65;
+
+        const right = 20;
+
+        const top = 20;
+
+        const bottom = 45;
+
+
+        const graphWidth =
+            width
+            - left
+            - right;
+
+
+        const graphHeight =
+            height
+            - top
+            - bottom;
+
+
+        const centreY =
+            top
+            + graphHeight / 2;
+
+
+        // ----------------------------------------------------
+        // Show 20 milliseconds
+        // ----------------------------------------------------
+
+        const timeEnd =
+            0.020;
+
+
+        // ----------------------------------------------------
+        // Fixed amplitude range
+        // ----------------------------------------------------
+
+        const maxAmplitude =
+            2.2;
+
+
+        // ====================================================
+        // BACKGROUND
+        // ====================================================
+
+        ctx.fillStyle =
+            "#FFFFFF";
+
+
+        ctx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        // ====================================================
+        // GRID
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#E4E8EC";
+
+
+        ctx.lineWidth =
+            1;
+
+
+        // ----------------------------------------------------
+        // Vertical grid
+        // ----------------------------------------------------
+
+        for (
+            let i = 0;
+            i <= 10;
+            i++
+        ) {
+
+
+            const x =
+                left
+                + graphWidth
+                * i
+                / 10;
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                x,
+                top
+            );
+
+
+            ctx.lineTo(
+                x,
+                top + graphHeight
+            );
+
+
+            ctx.stroke();
+
+        }
+
+
+        // ----------------------------------------------------
+        // Horizontal grid
+        // ----------------------------------------------------
+
+        for (
+            let i = 0;
+            i <= 8;
+            i++
+        ) {
+
+
+            const y =
+                top
+                + graphHeight
+                * i
+                / 8;
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                left,
+                y
+            );
+
+
+            ctx.lineTo(
+                left + graphWidth,
+                y
+            );
+
+
+            ctx.stroke();
+
+        }
+
+
+        // ====================================================
+        // AXES
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#777777";
+
+
+        ctx.lineWidth =
+            1.5;
+
+
+        // ----------------------------------------------------
+        // Horizontal zero line
+        // ----------------------------------------------------
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            centreY
+        );
+
+
+        ctx.lineTo(
+            left + graphWidth,
+            centreY
+        );
+
+
+        ctx.stroke();
+
+
+        // ----------------------------------------------------
+        // Y axis
+        // ----------------------------------------------------
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            top
+        );
+
+
+        ctx.lineTo(
+            left,
+            top + graphHeight
+        );
+
+
+        ctx.stroke();
+
+
+        // ====================================================
+        // AMPLITUDE GUIDE LINES
+        // ====================================================
+
+        const amplitudePixels =
+            A
+            / maxAmplitude
+            * graphHeight
+            / 2;
+
+
+        ctx.strokeStyle =
+            "#90CAF9";
+
+
+        ctx.lineWidth =
+            1;
+
+
+        ctx.setLineDash(
+            [6, 6]
+        );
+
+
+        // +A
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            centreY - amplitudePixels
+        );
+
+
+        ctx.lineTo(
+            left + graphWidth,
+            centreY - amplitudePixels
+        );
+
+
+        ctx.stroke();
+
+
+        // -A
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            left,
+            centreY + amplitudePixels
+        );
+
+
+        ctx.lineTo(
+            left + graphWidth,
+            centreY + amplitudePixels
+        );
+
+
+        ctx.stroke();
+
+
+        ctx.setLineDash([]);
+
+
+        // ====================================================
+        // ZERO-PHASE REFERENCE
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#999999";
+
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.setLineDash(
+            [7, 6]
+        );
+
+
+        ctx.beginPath();
+
+
+        for (
+            let px = 0;
+            px <= graphWidth;
+            px++
+        ) {
+
+
+            const t =
+                timeEnd
+                * px
+                / graphWidth;
+
+
+            const y =
+                A
+                * Math.sin(
+                    2
+                    * Math.PI
+                    * f
+                    * t
+                );
+
+
+            const x =
+                left
+                + px;
+
+
+            const screenY =
+                centreY
+                - (
+                    y
+                    / maxAmplitude
+                    * graphHeight
+                    / 2
+                );
+
+
+            if (px === 0) {
+
+
+                ctx.moveTo(
+                    x,
+                    screenY
+                );
+
+
+            } else {
+
+
+                ctx.lineTo(
+                    x,
+                    screenY
+                );
+
+            }
+
+        }
+
+
+        ctx.stroke();
+
+
+        ctx.setLineDash([]);
+
+
+        // ====================================================
+        // CURRENT SIGNAL
+        // ====================================================
+
+        ctx.strokeStyle =
+            "#1565C0";
+
+
+        ctx.lineWidth =
+            3;
+
+
+        ctx.beginPath();
+
+
+        for (
+            let px = 0;
+            px <= graphWidth;
+            px++
+        ) {
+
+
+            const t =
+                timeEnd
+                * px
+                / graphWidth;
+
+
+            const y =
+                A
+                * Math.sin(
+
+                    2
+                    * Math.PI
+                    * f
+                    * t
+
+                    + phaseRadians
+
+                );
+
+
+            const x =
+                left
+                + px;
+
+
+            const screenY =
+                centreY
+                - (
+                    y
+                    / maxAmplitude
+                    * graphHeight
+                    / 2
+                );
+
+
+            if (px === 0) {
+
+
+                ctx.moveTo(
+                    x,
+                    screenY
+                );
+
+
+            } else {
+
+
+                ctx.lineTo(
+                    x,
+                    screenY
+                );
+
+            }
+
+        }
+
+
+        ctx.stroke();
+
+
+        // ====================================================
+        // AXIS LABELS
+        // ====================================================
+
+        ctx.fillStyle =
+            "#444444";
+
+
+        ctx.font =
+            "14px Arial";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        // X-axis label
+
+        ctx.fillText(
+            "Time (ms)",
+            left + graphWidth / 2,
+            height - 7
+        );
+
+
+        // Y-axis label
+
+        ctx.save();
+
+
+        ctx.translate(
+            17,
+            top + graphHeight / 2
+        );
+
+
+        ctx.rotate(
+            -Math.PI / 2
+        );
+
+
+        ctx.fillText(
+            "Amplitude",
+            0,
+            0
+        );
+
+
+        ctx.restore();
+
+
+        // ====================================================
+        // TIME TICK LABELS
+        // ====================================================
+
+        ctx.font =
+            "12px Arial";
+
+
+        ctx.fillStyle =
+            "#666666";
+
+
+        ctx.textAlign =
+            "center";
+
+
+        for (
+            let i = 0;
+            i <= 4;
+            i++
+        ) {
+
+
+            const timeMilliseconds =
+                20
+                * i
+                / 4;
+
+
+            const x =
+                left
+                + graphWidth
+                * i
+                / 4;
+
+
+            ctx.fillText(
+                timeMilliseconds.toFixed(0),
+                x,
+                top + graphHeight + 20
+            );
+
+        }
+
+
+        // ====================================================
+        // UPDATE TEXT
+        // ====================================================
+
+        updateInformation(
+            A,
+            f,
+            phase
+        );
+
+    }
+
+
+    // ========================================================
+    // UPDATE DISPLAYED VALUES
+    // ========================================================
+
+    function updateInformation(
+        amplitude,
+        frequency,
+        phase
+    ) {
+
+
+        document.getElementById(
+            "amplitudeValue"
+        ).textContent =
+
+            amplitude.toFixed(2);
+
+
+        document.getElementById(
+            "frequencyValue"
+        ).textContent =
+
+            frequency.toFixed(0)
+            + " Hz";
+
+
+        document.getElementById(
+            "phaseValue"
+        ).textContent =
+
+            phase.toFixed(0)
+            + "°";
+
+
+        document.getElementById(
+            "infoAmplitude"
+        ).textContent =
+
+            amplitude.toFixed(2);
+
+
+        document.getElementById(
+            "infoFrequency"
+        ).textContent =
+
+            frequency.toFixed(0)
+            + " Hz";
+
+
+        // ----------------------------------------------------
+        // Period
+        // ----------------------------------------------------
+
+        const period =
+            1
+            / frequency;
+
+
+        document.getElementById(
+            "infoPeriod"
+        ).textContent =
+
+            (
+                period
+                * 1000
+            ).toFixed(2)
+            + " ms";
+
+
+        document.getElementById(
+            "infoPhase"
+        ).textContent =
+
+            phase.toFixed(0)
+            + "°";
+
+
+        // ----------------------------------------------------
+        // Phase sign for equation
+        // ----------------------------------------------------
+
+        let phaseText;
+
+
+        if (phase < 0) {
+
+
+            phaseText =
+
+                "− "
+                + Math.abs(
+                    phase
+                ).toFixed(0)
+                + "°";
+
+
+        } else {
+
+
+            phaseText =
+
+                "+ "
+                + phase.toFixed(0)
+                + "°";
+
+        }
+
+
+        // ----------------------------------------------------
+        // Current equation
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "currentEquation"
+        ).textContent =
+
+            "y(t) = "
+            + amplitude.toFixed(2)
+
+            + " sin(2π("
+
+            + frequency.toFixed(0)
+
+            + ")t "
+
+            + phaseText
+
+            + ")";
+
+    }
+
+
+    // ========================================================
+    // AUDIO VOLUME MAPPING
+    // ========================================================
+
+    function amplitudeToGain(
+        amplitude
+    ) {
+
+
+        // Keep the demonstration at a conservative volume.
+
+        return Math.min(
+            0.08,
+            amplitude * 0.04
+        );
+
+    }
+
+
+    // ========================================================
+    // START CONTINUOUS TONE
+    // ========================================================
+
+    async function startTone() {
+
+
+        // ----------------------------------------------------
+        // Create audio context only after the user clicks
+        // ----------------------------------------------------
+
+        if (!audioContext) {
+
+
+            audioContext =
+                new (
+                    window.AudioContext
+                    ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+
+        if (
+            audioContext.state
+            === "suspended"
+        ) {
+
+
+            await audioContext.resume();
+
+        }
+
+
+        if (tonePlaying) {
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // Oscillator
+        // ----------------------------------------------------
+
+        oscillator =
+            audioContext.createOscillator();
+
+
+        oscillator.type =
+            "sine";
+
+
+        const frequency =
+            parseFloat(
+                frequencySlider.value
+            );
+
+
+        oscillator.frequency.setValueAtTime(
+            frequency,
+            audioContext.currentTime
+        );
+
+
+        // ----------------------------------------------------
+        // Gain
+        // ----------------------------------------------------
+
+        gainNode =
+            audioContext.createGain();
+
+
+        gainNode.gain.setValueAtTime(
+            0,
+            audioContext.currentTime
+        );
+
+
+        oscillator.connect(
+            gainNode
+        );
+
+
+        gainNode.connect(
+            audioContext.destination
+        );
+
+
+        oscillator.start();
+
+
+        tonePlaying =
+            true;
+
+
+        // ----------------------------------------------------
+        // Gentle fade-in
+        // ----------------------------------------------------
+
+        const amplitude =
+            parseFloat(
+                amplitudeSlider.value
+            );
+
+
+        gainNode.gain.linearRampToValueAtTime(
+
+            amplitudeToGain(
+                amplitude
+            ),
+
+            audioContext.currentTime
+            + 0.04
+
+        );
+
+
+        // ----------------------------------------------------
+        // Button
+        // ----------------------------------------------------
+
+        playToneButton.textContent =
+            "■ Stop tone";
+
+
+        playToneButton.classList.add(
+            "playing"
+        );
+
+    }
+
+
+    // ========================================================
+    // STOP CONTINUOUS TONE
+    // ========================================================
+
+    function stopTone() {
+
+
+        if (
+            !tonePlaying
+            ||
+            !audioContext
+            ||
+            !oscillator
+            ||
+            !gainNode
+        ) {
+
+            return;
+
+        }
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        // ----------------------------------------------------
+        // Fade out to prevent clicking
+        // ----------------------------------------------------
+
+        gainNode.gain.cancelScheduledValues(
+            now
+        );
+
+
+        gainNode.gain.setValueAtTime(
+            gainNode.gain.value,
+            now
+        );
+
+
+        gainNode.gain.linearRampToValueAtTime(
+            0,
+            now + 0.04
+        );
+
+
+        oscillator.stop(
+            now + 0.05
+        );
+
+
+        oscillator = null;
+
+        gainNode = null;
+
+        tonePlaying =
+            false;
+
+
+        playToneButton.textContent =
+            "▶ Play tone";
+
+
+        playToneButton.classList.remove(
+            "playing"
+        );
+
+    }
+
+
+    // ========================================================
+    // UPDATE AUDIO WHILE PLAYING
+    // ========================================================
+
+    function updateAudio() {
+
+
+        if (
+            !tonePlaying
+            ||
+            !audioContext
+            ||
+            !oscillator
+            ||
+            !gainNode
+        ) {
+
+            return;
+
+        }
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        // ----------------------------------------------------
+        // Frequency -> pitch
+        // ----------------------------------------------------
+
+        const frequency =
+            parseFloat(
+                frequencySlider.value
+            );
+
+
+        oscillator.frequency.setTargetAtTime(
+            frequency,
+            now,
+            0.015
+        );
+
+
+        // ----------------------------------------------------
+        // Amplitude -> loudness
+        // ----------------------------------------------------
+
+        const amplitude =
+            parseFloat(
+                amplitudeSlider.value
+            );
+
+
+        gainNode.gain.setTargetAtTime(
+
+            amplitudeToGain(
+                amplitude
+            ),
+
+            now,
+
+            0.015
+
+        );
+
+    }
+
+
+    // ========================================================
+    // SLIDER EVENTS
+    // ========================================================
+
+    amplitudeSlider.addEventListener(
+        "input",
+        function () {
+
+
+            drawWave();
+
+            updateAudio();
+
+        }
+    );
+
+
+    frequencySlider.addEventListener(
+        "input",
+        function () {
+
+
+            drawWave();
+
+            updateAudio();
+
+        }
+    );
+
+
+    // Phase affects the visual waveform.
+    //
+    // Absolute phase of a single continuous pure tone
+    // does not produce a meaningful audible difference.
+
+    phaseSlider.addEventListener(
+        "input",
+        drawWave
+    );
+
+
+    // ========================================================
+    // PLAY / STOP
+    // ========================================================
+
+    playToneButton.addEventListener(
+        "click",
+        async function () {
+
+
+            if (tonePlaying) {
+
+
+                stopTone();
+
+
+            } else {
+
+
+                await startTone();
+
+            }
+
+        }
+    );
+
+
+    // ========================================================
+    // RESIZE
+    // ========================================================
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+
+    const observer =
+        new ResizeObserver(
+            function () {
+
+
+                resizeCanvas();
+
+            }
+        );
+
+
+    observer.observe(
+        canvas
+    );
+
+
+    // ========================================================
+    // INITIAL DRAW
+    // ========================================================
+
+    requestAnimationFrame(
+        function () {
+
+
+            resizeCanvas();
+
+        }
+    );
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>

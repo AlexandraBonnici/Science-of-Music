@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Science of Music — WebSlides</title>
+
+  <!--
+    If this file is placed inside the WebSlides /demos folder, the official
+    WebSlides CSS/JS paths below should work with the standard download:
+      demos/science-of-music-webslides.html
+      demos/assets/slide-01.jpg ...
+      static/css/webslides.css
+      static/js/webslides.js
+  -->
+  <link rel="stylesheet" type="text/css" media="all" href="../static/css/webslides.css">
+
+  <style>
+    :root {
+      --deck-blue: #1565C0;
+      --deck-dark-blue: #0D47A1;
+
+      /*
+        Responsive base size.
+        1920 x 1080 is the reference design size:
+        - at 1920 x 1080 this evaluates to 16px
+        - on smaller/larger screens it scales proportionally
+      */
+      --responsive-rem: clamp(10px, min(0.833333vw, 1.481481vh), 32px);
+    }
+
+    html {
+      font-size: var(--responsive-rem);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Fallback slide behaviour if the WebSlides library is not present. */
+    body.no-webslides article#webslides {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body.no-webslides article#webslides > section {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      inset: 0;
+    }
+
+    body.no-webslides article#webslides > section.active {
+      display: block;
+    }
+
+    /*
+      Responsive layout:
+      Fixed 1920x1080 pixel coordinates in the original deck have been
+      converted to vw/vh so that positions and image sizes follow the viewport.
+      Typography is scaled through --responsive-rem above.
+    */
+
+    /* Shared slide styling. */
+    article#webslides > section {
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .slide-image {
+      position: absolute;
+      inset: 0;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-color: #ffffff;
+      z-index: 0;
+    }
+
+    .accessibility-text {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .hint {
+      position: fixed;
+      right: 1rem;
+      bottom: 0.8rem;
+      z-index: 9999;
+      font-family: Arial, sans-serif;
+      font-size: 0.8rem;
+      color: rgba(13, 71, 161, 0.55);
+      pointer-events: none;
+    }
+
+    @media print {
+      html, body { overflow: visible; }
+      article#webslides > section {
+        display: block !important;
+        page-break-after: always;
+        height: 100vh;
+        position: relative;
+      }
+      .hint { display: none; }
+    }
+ 
+
+
+    h1 {font-size: clamp(2rem, 26vmin, 5rem);}
+    h2 {font-size: clamp(1rem, 20vmin, 4rem);font-style: italic;}
+    h3 {font-size: clamp(1rem, 16vmin, 3rem);}
+     p {font-size: clamp(1rem,  16vmin,  1.5rem);}
+  </style>
+
+<script>
+    window.MathJax = {
+
+      tex: {
+
+        inlineMath: [
+            ['\\(', '\\)']
+        ],
+
+        displayMath: [
+            ['\\[', '\\]']
+        ]
+
+      }
+  
+    };
+</script>
+
+
+<script
+    defer
+    src="../static/MathJax-master/tex-mml-chtml.js">
+</script>
+
+</head>
+
+<body class="no-webslides">
+<main role="main">
+  <article id="webslides">
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-1" aria-label="Science of Music">
+      <span
+          class="background"
+            style="
+              background-image: url('assets/TitleSlide.png');
+              background-size: cover;
+              background-position: center;
+      ">
+      </span>
+      <div 
+        style="
+          position:absolute;
+          top:39.352vh;
+          left:3.125vw;
+          right:3.125vw;
+          z-index: 2;
+          text-align: left;"
+      >
+        <h3> The Science of</h3><br><br><br>
+        <h1 style="font-size:11em;"> <strong> Music</strong></h1>
+      </div>
+      <div class="accessibility-text"><h1>The Science of Music</h1></div>
+    </section>
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-2" aria-label="Shared Connections">
+      <span
+          class="background"
+            style="
+              background-image: url('assets/Bridge.png');
+              background-size: cover;
+              background-position: center;
+      ">
+      </span>
+      <div 
+        style="
+          position:absolute;
+          top:2.315vh;
+          left:3.125vw;
+          right:3.125vw;
+          z-index: 2;
+          text-align: center;"
+        >
+        <h1> Science vs Music</h1><br>
+        <h2> Different worlds, or shared connections?</h2>
+      </div>
+      <div class="accessibility-text"><h1>Science vs Music</h1><p>Different worlds, or shared connections?</p></div>
+  </section>
+
+<!----------------------------------------------------------------------------------------------->
+<section id="slide-3" aria-label="Sound Production">
+    <div class = "wrap">
+        <h1> How do different instruments produce sounds?</h1><br><br>
+        <h2> Let's hear it from the musicians!</h2><br>
+    </div>
+    <div class="accessibility-text"><h1>Sound Production</h1><p>How do different instruments produce sounds?</p></div>
+</section>
+    
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-4" aria-label="Woodwind instruments">
+    <div 
+      style="
+        position:absolute;
+        top:2.315vh;
+        left:3.125vw;
+        right:3.125vw;
+        z-index: 2;
+        text-align: left;
+        line-height:0.1"
+      >
+      <h1> Woodwind Instruments</h1><br>
+      <h2> Create beautiful sounds when air vibrates</h2>
+    </div>
+    <hr style="
+        position: absolute;
+        top:20.667vh;
+        left:3.646vw;
+        border: none;
+        height: 0.385vh;
+        background-color: black;
+        width: 10.417vw;
+        margin:3.704vh 0">
+   
+    <div style="
+      position:absolute;
+      top:35%;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:4vw;
+      width:90%;
+   
+      margin:0 auto;
+      ">
+
+      <div style="
+        width:35%;
+        background-color:#e1dfda;
+        padding:2vw;
+        border-radius:1vw;
+        text-align:left;
+      ">
+
+        <h3>How do they work?</h3>
+        <h5 style="margin-left: 2.083vw;">When you blow into the instrument, it sets the air inside into vibration. These vibrations travel through the instrument and out through the opening to create sound.</h5>
+      </div>
+
+      <img
+        src="assets/Woodwind.png"
+        style="
+            width:50%;
+            height:auto;
+        "
+      >
+    </div>
+    <div class="accessibility-text"><h1>Woodwind Instruments</h1><p>Create beautiful sounds when air vibrates.</p></div>
+  </section>
+
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-5" aria-label="Stringed instruments">
+    <div 
+      style="
+        position:absolute;
+        top:2.315vh;
+        left:3.125vw;
+        right:3.125vw;
+        z-index: 2;
+        text-align: left;
+        line-height:0.1"
+      >
+      <h1> Stringed Instruments</h1><br>
+      <h2> Create beautiful sounds their strings vibrate</h2>
+    </div>
+    <hr style="
+        position: absolute;
+        top:20.667vh;
+        left:3.646vw;
+        border: none;
+        height: 0.385vh;
+        background-color: black;
+        width: 10.417vw;
+        margin:3.704vh 0">
+   
+    <div style="
+      position:absolute;
+      top:35%;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:4vw;
+      width:90%;
+   
+      margin:0 auto;
+      ">
+
+      <div style="
+        width:35%;
+        background-color:#e1dfda;
+        padding:2vw;
+        border-radius:1vw;
+        text-align:left;
+      ">
+
+        <h3>How do they work?</h3>
+        <h5 style="margin-left: 2.083vw;">A string is stretched between two points. When it is bowed or plucked, it vibrates. These vibartions travel through the body of the instrument and make the air vibrate, creating sound!</h5>
+      </div>
+
+      <img
+        src="assets/Stringed.png"
+        style="
+            width:50%;
+            height:auto;
+        "
+      >
+    </div>
+    <div class="accessibility-text"><h1>Stringed Instruments</h1><p>Create beautiful sounds their strings vibrates.</p></div>
+  </section>
+
+<!----------------------------------------------------------------------------------------------->
+<section id="slide-6" aria-label="Signal Processing">
+  <div class = "wrap">
+    <h1> Signal Processing</h1><br><br>
+    <h2> The science of understanding and analysing signals, such as sound, to uncover the information hidden within them.</h2><br>
+  </div>
+  <div class="accessibility-text"><h1>Signal Processing</h1><p>The science of understanding and analysing signals, such as sound, to uncover the information hidden within them.</p></div>
+</section>
+
+<!----------------------------------------------------------------------------------------------->
+   
+<section class="aligncenter" id="slide-7" aria-label="The Sine Wave">
+  <div 
+    style="
+      position:absolute;
+      top:2.315vh;
+      left:3.125vw;
+      right:3.125vw;
+      z-index: 2;
+      text-align: left;"
+      >
+      <h1> The Sine Wave</h1><br>
+  </div>
+
+  <hr style="
+        position: absolute;
+        top:12.667vh;
+        left:3.646vw;
+        border: none;
+        height: 0.385vh;
+        background-color: black;
+        width: 10.417vw;
+        margin:3.704vh 0">
+  
+  <div style="
+      position:absolute;
+      top:20%;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:4vw;
+      width:95%;
+   
+      margin:0 auto;
+      ">
+
+      <div style="
+        width:35%;
+        background-color:#e1dfda;
+        padding:2vw;
+        border-radius:1vw;
+        text-align:left;
+      ">
+
+        <h3>The Simplest Signal</h3>
+        <h5 style="margin-left: 2.083vw;">Frequency = pitch <br>
+        Amplitude = loudness</h5>
+      </div>
+
+      <img
+        src="assets/SineWave.png"
+        style="
+            width:65%;
+            height:auto;
+        "
+      >
+    </div>
+    <div class="accessibility-text"><h1>The Sine Wave</h1><p>Frequency equals pitch. Amplitude equals loudness.</p></div>
+</section>
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-8" aria-label="Standing Waves">
+  <div 
+    style="
+      position:absolute;
+      top:2.315vh;
+      left:3.125vw;
+      right:3.125vw;
+      z-index: 2;
+      text-align: left;
+      line-height:0.1"
+      >
+    <h1> Standing Waves</h1><br>
+    <h2> What happens when a string vibrates</h2>
+  </div>
+    
+  <hr style="
+    position: absolute;
+    top:20.667vh;
+    left:3.646vw;
+    border: none;
+    height: 0.385vh;
+    background-color: black;
+    width: 10.417vw;
+    margin:3.704vh 0">
+    
+  <div style="
+    position:absolute;
+    top:25%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    gap:4vw;
+    width:90%;
+    margin:0 auto;
+    ">
+
+    <div style="
+      width:40%;
+      background-color:#e1dfda;
+      padding:2vw;
+      border-radius:1vw;
+      text-align:left;
+      ">
+
+      <h3>Resonance</h3><br>
+      <h5 style="margin-left: 2.083vw;">Occurs when two waves of the same frequency travel in opposite directions.<br><br>
+        Nodes: points of zero motion<br><br>
+        Antinodes: points of maximum motion
+      </h5>
+    </div>
+
+    <img
+      src="assets/StandingWave.png"
+      style="
+        width:47.5%;
+        height:auto;
+      ">
+  </div>
+  
+  <div class="accessibility-text"><h1>Standing Waves</h1><p>Nodes are points of zero motion. Antinodes are points of maximum motion.</p></div>
+  </section>
+
+<!----------------------------------------------------------------------------------------------->
+<section>
+  <div class = "wrap">
+    <h1> Mathematics</h1><br><br>
+    <h2> Helps us understand the hidden structures of sound and shows us how simple waves combine to create beautiful musical sounds.</h2><br>
+  </div>
+</section>
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-2" aria-label="Science vs Music">
+  <div 
+    style="
+      position:absolute;
+      top:2.315vh;
+      left:3.125vw;
+      right:3.125vw;
+      z-index: 2;
+      text-align: left;
+      line-height: 0.1;"
+      >
+      <h1> Jean-Baptiste Gauci Fourier</h1><br>
+      <h2> 1768 - 1830, France</h2>
+  </div>
+  <hr style="
+    position: absolute;
+    top:20.667vh;
+    left:3.646vw;
+    border: none;
+    height: 0.385vh;
+    background-color: black;
+    width: 10.417vw;
+    margin:3.704vh 0">
+  
+  <h3 style="margin-left: 28.125vw;">A complex periodic pattern can be built from simple sine waves</h3><br>
+  </div>
+
+  <img
+    src="assets/Fourier.png"
+    style="
+      position:absolute;
+      left:3.646vw;
+      top:28.926vh;
+
+      width:25.042vw;
+      height:auto;
+      border:1px solid black;
+      z-index:2;
+    ">
+  
+  <img
+    src="assets/Cross.png"
+    style="
+      position:absolute;
+      left:26.562vw;
+      top:1.863vh;
+      width:6.771vw;
+      height:auto;
+      z-index:2;
+    ">
+      <div class="accessibility-text"><h1>Jean-Baptiste Fourier</h1><p>A complex periodic pattern can be built from simple sine waves.</p></div>
+    </section>
+
+<!----------------------------------------------------------------------------------------------->
+<section>
+  <iframe
+    src="simple-sine-wave.html"
+
+        style="
+            position:absolute;
+            top:0;
+            left:0;
+
+            width:100%;
+            height:90%;
+
+            border:none;
+
+            background:white;
+        "
+    >
+  </iframe>
+</section>
+
+<!----------------------------------------------------------------------------------------------->  
+<section>
+  <iframe
+    src="live-waveform.html"
+      allow="microphone"
+
+        style="
+            position:absolute;
+            top:0;
+            left:0;
+
+            width:100%;
+            height:90%;
+
+            border:none;
+
+            background:white;
+        "
+    >
+    </iframe>
+</section>
+
+<!----------------------------------------------------------------------------------------------->  
+<section>
+  <iframe
+        src="Harmonics.html"
+        allow="microphone"
+
+        style="
+            position:absolute;
+            top:0;
+            left:0;
+
+            width:100%;
+            height:90%;
+
+            border:none;
+
+            background:white;
+        "
+    >
+    </iframe>
+
+</section>
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-2" aria-label="Science vs Music">
+  <div 
+    style="
+      position:absolute;
+      top:2.315vh;
+      left:3.125vw;
+      right:3.125vw;
+      z-index: 2;
+      text-align: left;
+      line-height: 0.1;"
+      >
+      <h1> The Fourier Series</h1><br>
+      <h2 style="font-size: 2.1em;"> A mathematical recipie that explains how signals are built from single sine waves</h2>
+  </div>
+  
+  <hr style="
+    position: absolute;
+    top:20.667vh;
+    left:3.646vw;
+    border: none;
+    height: 0.385vh;
+    background-color: black;
+    width: 10.417vw;
+    margin:3.704vh 0">
+  
+  <div style="
+    text-align:center;
+    font-size:1.8em;
+    margin-top:-26.519vh;
+    ">
+    \[
+      y(t) = a_0 + \sum(a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t)) \: \mathrm{for}\: n = 1, 2, 3...
+    \]
+  </div>
+      
+  <div style="
+    position: absolute;
+    left:3.125vw;
+    bottom:10.185vh;
+    width:41.25vw;
+    background-color: #e1dfda;
+    color: black;
+        
+    padding: 1.852vh 1.562vw;
+    border-radius: 1.111vmin;
+
+    text-align:left;
+    white-space: normal;
+    overflow-wrap: break-word;
+   ">
+   <h3>The Ingredient List</h3><br>
+   <h5 style="margin-left: 2.083vw;">
+      \(\omega_0\) <span style="display:inline-block; width:1.979vw;"></span> The fundamental frequency<br><br>
+      \(n\omega_0\) <span style="display:inline-block; width:1.302vw;"></span> The harmonic frequencies<br><br>
+      \(a_n, b_n\) <span style="display:inline-block; width:0.521vw;"></span> How much of each component is present
+    </h5>
+  </div>
+  <div class="accessibility-text"><h1>Standing Waves</h1><p>Nodes are points of zero motion. Antinodes are points of maximum motion.</p></div>
+</section>
+
+<!----------------------------------------------------------------------------------------------->  
+<section>
+ <iframe
+        src="Fourier-from-sine.html"
+        allow="microphone"
+
+        style="
+            position:absolute;
+            top:0;
+            left:0;
+
+            width:100%;
+            height:90%;
+
+            border:none;
+
+            background:white;
+        "
+    >
+  </iframe>
+</section>
+
+<!----------------------------------------------------------------------------------------------->
+<section class="aligncenter" id="slide-2" aria-label="Science vs Music">
+  <div 
+    style="
+       position:absolute;
+       top:2.315vh;
+       left:3.125vw;
+       right:3.125vw;
+       z-index: 2;
+       text-align: left;
+       line-height: 0.1;"
+      >
+      <h1> One sound, two equivalent descriptions</h1><br>
+      <h2> Scafolding musical sounds by comining simple waves</h2>
+  </div>
+  
+  <hr style="
+    position: absolute;
+    top:18.667vh;
+    left:3.646vw;
+    border: none;
+    height: 0.385vh;
+    background-color: black;
+    width: 10.417vw;
+    margin:3.704vh 0">
+            
+  <div style="
+    position: absolute;
+    left:7.292vw;
+    bottom:27.778vh;
+
+    width:18.021vw;
+    height:18.021vw;
+
+    background-color: #e1dfda;
+    color: black;
+        
+    padding: 1.852vh 1.562vw;
+    border-radius: 1.111vmin;
+
+    text-align:center;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+    ">
+    <h3 style="font-size: 1em;">TIME DOMAIN</h3><br>
+    <h5 style="font-size: 3em;">
+      \(y(t)\) 
+    </h5> <br>
+    <h3 style="font-size: 1em;"> The Waveform</h3>
+  </div>
+
+  <div style="
+    position: absolute;
+    left:38.333vw;
+    bottom:27.778vh;
+
+    width:18.021vw;
+    height:18.021vw;
+
+    background-color: #e1dfda;
+    color: black;
+        
+   padding: 1.852vh 1.562vw;
+   border-radius: 1.111vmin;
+
+   text-align:center;
+
+   white-space: normal;
+   overflow-wrap: break-word;
+   ">
+   <h3 style="font-size: 1em;">FOURIER ANALYSIS</h3><br>
+   <h5 style="font-size: 3em;">
+     \(\rightleftarrows\)
+   </h5> <br>
+   <h3 style="font-size: 1em;"> Analysis/Synthesis</h3>
+  </div>
+
+  <div style="
+    position: absolute;
+    left:69.896vw;
+    bottom:27.778vh;
+
+    width:18.021vw;
+    height:18.021vw;
+
+    background-color: #e1dfda;
+    color: black;
+        
+    padding: 1.852vh 1.562vw;
+    border-radius: 1.111vmin;
+
+    text-align:center;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+    ">
+    <h3 style="font-size: 1em;">FREQUENCY DOMAIN</h3><br>
+    <h5 style="font-size: 3em;">
+      \(Y(f)\) 
+    </h5> <br>
+    <h3 style="font-size: 1em;"> Frequency Spectrum</h3>
+  </div>
+  
+  <h2 style="position: absolute;bottom: 9.259vh;">Mathematics does not replace the music; it reveals part of its hidden structure</h2>
+  <div class="accessibility-text"><h1>Standing Waves</h1><p>Nodes are points of zero motion. Antinodes are points of maximum motion.</p></div>
+</section>
+
+
+<!----------------------------------------------------------------------------------------------->
+<section>
+  <div class = "wrap">
+    <h1> We Are Free</h1><br><br>
+    <h2> Gladiator</h2><br>
+    <hr style="
+        border: none;
+        height: 0.385vh;
+        background-color: black;
+        width: 10.417vw;
+        margin:2.778vh 0">
+        
+        <p style="margin-left: 2.083vw;">
+          Elisa Sacco<br>
+          Eliza Brincat<br>
+          Maya Ungaro<br>
+          Christopher John Mercieca
+        </p>
+  </div>
+</section>
+
+<!---------------------------------------------------------------------------------------------->
+<section>
+
+    <iframe
+        src="LiveFourier.html"
+        allow="microphone"
+
+        style="
+            position:absolute;
+            top:0;
+            left:0;
+
+            width:100%;
+            height:90%;
+
+            border:none;
+            background:white;
+        "
+    >
+    </iframe>
+
+</section>
+
+    <section class="aligncenter" id="slide-19" aria-label="Contact Us">
+      <span class="slide-image" style="background-image:url('assets/slide-19.jpg')"></span>
+      <div class="accessibility-text"><h1>Contact Us</h1><p>Contact details placeholder from the original slide.</p></div>
+    </section>
+
+  </article>
+</main>
+
+<div class="hint">Use ← / → to navigate</div>
+
+<script src="../static/js/webslides.js"></script>
+<script>
+  // Use WebSlides if available. Otherwise provide a small fallback presenter
+  // so the file is still usable even outside the WebSlides folder.
+  if (typeof WebSlides !== 'undefined') {
+    document.body.classList.remove('no-webslides');
+    window.ws = new WebSlides();
+  } else {
+    const slides = Array.from(document.querySelectorAll('#webslides > section'));
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      window.location.hash = String(current + 1);
+    }
+
+    const initial = parseInt(window.location.hash.replace('#',''), 10);
+    if (!Number.isNaN(initial)) current = Math.max(0, Math.min(slides.length - 1, initial - 1));
+    showSlide(current);
+
+    window.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (['ArrowLeft', 'PageUp', 'Backspace'].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+    });
+  }
+</script>
+</body>
+</html>
